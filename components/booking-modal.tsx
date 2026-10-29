@@ -47,6 +47,9 @@ export function BookingModal({
   const [time, setTime] = useState<string>("")
   const [address, setAddress] = useState<string>("")
   const [confirmed, setConfirmed] = useState(false)
+  const [bookingId, setBookingId] = useState("")
+  const [bookingError, setBookingError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
   const days = nextDays(14)
 
   function reset() {
@@ -55,6 +58,9 @@ export function BookingModal({
     setTime("")
     setAddress("")
     setConfirmed(false)
+    setBookingId("")
+    setBookingError("")
+    setSubmitting(false)
   }
 
   function handleClose() {
@@ -66,9 +72,29 @@ export function BookingModal({
 
   const selectedDay = days.find((d) => d.key === date)
   const dateLabel = selectedDay ? `${selectedDay.day}, ${selectedDay.month} ${selectedDay.date}` : ""
-  const bookingId = `CS-${caretaker.id.slice(0, 3).toUpperCase()}-${(caretaker.reviews * 7 + 1042).toString().slice(0, 4)}`
   const canContinue =
     (step === 0 && date) || (step === 1 && time) || (step === 2 && address.trim().length > 3) || step === 3
+
+  async function submitBooking() {
+    if (!caretaker || !selectedDay || submitting) return
+    setSubmitting(true)
+    setBookingError("")
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ caretakerId: caretaker.id, date, time, address: address.trim() }),
+      })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error || "We couldn’t save your booking.")
+      setBookingId(result.booking.id)
+      setConfirmed(true)
+    } catch (error) {
+      setBookingError(error instanceof Error ? error.message : "We couldn’t save your booking.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (confirmed) {
     return (
@@ -239,14 +265,15 @@ export function BookingModal({
             </button>
           )}
           <button
-            disabled={!canContinue}
-            onClick={() => (step === 3 ? setConfirmed(true) : setStep((s) => s + 1))}
+            disabled={!canContinue || submitting}
+            onClick={() => (step === 3 ? void submitBooking() : setStep((s) => s + 1))}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {step === 3 ? "Confirm Booking" : "Continue"}
+            {submitting ? "Saving booking…" : step === 3 ? "Confirm Booking" : "Continue"}
             {step < 3 && <ArrowRight className="size-4" />}
           </button>
         </div>
+        {bookingError && <p className="mt-3 text-sm text-destructive" role="alert">{bookingError}</p>}
       </div>
     </Modal>
   )

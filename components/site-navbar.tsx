@@ -7,10 +7,12 @@ import { useEffect, useState } from "react"
 
 const navLinks = [
   { label: "Home", href: "/#home" },
+  { label: "About", href: "/about" },
   { label: "Find Caretaker", href: "/find" },
   { label: "Become a Caretaker", href: "/#become" },
   { label: "How It Works", href: "/#how" },
   { label: "Safety", href: "/#safety" },
+  { label: "Contact", href: "/contact" },
 ]
 
 export function Logo({ className }: { className?: string }) {
