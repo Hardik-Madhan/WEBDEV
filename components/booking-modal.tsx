@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { Modal } from "@/components/modal"
 import type { Caretaker } from "@/lib/data"
 import { cn } from "@/lib/utils"
@@ -73,7 +74,7 @@ export function BookingModal({
   const selectedDay = days.find((d) => d.key === date)
   const dateLabel = selectedDay ? `${selectedDay.day}, ${selectedDay.month} ${selectedDay.date}` : ""
   const canContinue =
-    (step === 0 && date) || (step === 1 && time) || (step === 2 && address.trim().length > 3) || step === 3
+    (step === 0 && date) || (step === 1 && time) || (step === 2 && address.trim().length >= 5) || step === 3
 
   async function submitBooking() {
     if (!caretaker || !selectedDay || submitting) return
@@ -98,15 +99,15 @@ export function BookingModal({
 
   if (confirmed) {
     return (
-      <Modal open={open} onClose={handleClose} label="Booking confirmed">
+      <Modal open={open} onClose={handleClose} label="Request saved">
         <div className="flex flex-col items-center px-6 py-10 text-center">
           <div className="relative mb-5 flex size-20 items-center justify-center rounded-full bg-success/15">
             <span className="absolute inline-flex size-20 animate-pulse-ring rounded-full bg-success/40" />
             <CheckCircle2 className="size-11 text-success" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground">Booking Confirmed</h2>
+          <h2 className="text-2xl font-bold text-foreground">Request saved</h2>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Your care request has been sent to {caretaker.name}. You&apos;ll get a confirmation shortly.
+            Your request has been saved locally. Registered caretakers can view it in their dashboard; sample profiles cannot receive requests.
           </p>
 
           <div className="mt-6 w-full space-y-3 rounded-2xl border border-border bg-muted/40 p-4 text-left">
@@ -118,9 +119,9 @@ export function BookingModal({
           </div>
 
           <div className="mt-6 flex w-full gap-3">
-            <button className="flex-1 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90">
+            <Link href="/dashboard?section=Bookings" className="flex-1 rounded-xl bg-primary px-4 py-3 text-center font-semibold text-primary-foreground transition-all hover:bg-primary/90">
               View Booking
-            </button>
+            </Link>
             <button
               onClick={handleClose}
               className="flex-1 rounded-xl border border-border px-4 py-3 font-semibold text-foreground transition-colors hover:bg-muted"
@@ -227,7 +228,7 @@ export function BookingModal({
                 className="w-full resize-none rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/30"
               />
               <button
-                onClick={() => setAddress("Koramangala 4th Block, Bengaluru 560034")}
+                onClick={() => setBookingError("Please enter your address manually; location lookup is not available in this prototype.")}
                 className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
               >
                 <MapPin className="size-4" /> Use my current location
@@ -269,11 +270,11 @@ export function BookingModal({
             onClick={() => (step === 3 ? void submitBooking() : setStep((s) => s + 1))}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {submitting ? "Saving booking…" : step === 3 ? "Confirm Booking" : "Continue"}
+            {submitting ? "Saving booking…" : step === 3 ? "Submit Request" : "Continue"}
             {step < 3 && <ArrowRight className="size-4" />}
           </button>
         </div>
-        {bookingError && <p className="mt-3 text-sm text-destructive" role="alert">{bookingError}</p>}
+        {bookingError && <p className="mt-3 text-sm text-destructive" role="alert">{bookingError} {bookingError.includes("log in") && <Link className="underline" href="/login">Log in</Link>}</p>}
       </div>
     </Modal>
   )

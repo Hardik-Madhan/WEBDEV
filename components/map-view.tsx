@@ -3,7 +3,6 @@
 import { Rating } from "@/components/badges"
 import type { Caretaker } from "@/lib/data"
 import { cn } from "@/lib/utils"
-import { Navigation } from "lucide-react"
 import { useState } from "react"
 
 export function MapView({
@@ -41,7 +40,7 @@ export function MapView({
           <span className="relative inline-flex size-5 rounded-full border-2 border-card bg-primary" />
         </span>
         <span className="absolute left-1/2 top-6 -translate-x-1/2 whitespace-nowrap rounded-lg bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-          You
+          Example location
         </span>
       </div>
 
@@ -69,10 +68,7 @@ export function MapView({
         </button>
       ))}
 
-      {/* recenter */}
-      <button className="absolute right-4 top-4 flex size-10 items-center justify-center rounded-xl border border-border bg-card text-primary shadow-md transition-colors hover:bg-muted">
-        <Navigation className="size-4" />
-      </button>
+      <p className="absolute left-4 top-4 z-20 rounded-lg bg-card px-3 py-2 text-xs font-semibold">Illustration only — locations are not live</p>
 
       {/* active preview card */}
       {active && (
@@ -82,7 +78,7 @@ export function MapView({
             <p className="truncate font-bold text-foreground">{active.name}</p>
             <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
               <Rating rating={active.rating} />
-              <span>· {active.distance} km</span>
+              <span>{active.id.startsWith("application-") ? "· Distance unknown" : `· ${active.distance} km (sample)`}</span>
             </div>
             <p className="mt-0.5 text-xs font-medium text-success">{active.availability}</p>
           </div>

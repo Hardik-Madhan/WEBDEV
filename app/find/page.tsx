@@ -11,7 +11,7 @@ import { SiteNavbar } from "@/components/site-navbar"
 import { caretakers, careTypes, type Caretaker } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { CalendarDays, Clock, List, MapIcon, MapPin, Search, SlidersHorizontal } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 export default function FindPage() {
   const [filters, setFilters] = useState<Filters>(defaultFilters)
@@ -19,10 +19,18 @@ export default function FindPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [profile, setProfile] = useState<Caretaker | null>(null)
   const [booking, setBooking] = useState<Caretaker | null>(null)
+  const [registered, setRegistered] = useState<Caretaker[]>([])
+  useEffect(() => { fetch("/api/caretaker").then(r => r.json()).then(d => setRegistered(d.caretakers || [])).catch(() => {}) }, [])
+  const [saved, setSaved] = useState<string[]>([])
+  const [saveError, setSaveError] = useState("")
+  useEffect(() => { fetch("/api/account").then(r => r.json()).then(d => setSaved(d.user?.saved || [])).catch(() => {}) }, [])
+  async function toggleSaved(c: Caretaker) { try { const response = await fetch("/api/saved", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setSaved(data.user.saved); setSaveError("") } catch (e) { setSaveError(e instanceof Error ? e.message : "Could not save caretaker.") } }
   const [query, setQuery] = useState({ care: "Elderly Care", location: "Koramangala, Bengaluru" })
 
+  useEffect(() => { const params = new URLSearchParams(window.location.search); const care = params.get("care"); const location = params.get("location"); if (care && (careTypes as readonly string[]).includes(care)) { setQuery(q => ({ ...q, care, location: location || q.location })); setFilters(f => ({ ...f, careType: care })) } }, [])
+
   const results = useMemo(() => {
-    return caretakers
+    return [...caretakers, ...registered]
       .filter((c) => c.distance <= filters.maxDistance)
       .filter((c) => c.rating >= filters.minRating)
       .filter((c) => c.experience >= filters.minExperience)
@@ -32,9 +40,9 @@ export default function FindPage() {
           ? c.availability === "Available Now" || c.availability === "Available Today"
           : true,
       )
-      .filter((c) => (filters.careType === "All" ? true : c.careTypes.includes(filters.careType)))
+      .filter((c) => (filters.careType === "All" ? true : c.careTypes.some(t => t.toLowerCase() === filters.careType.toLowerCase())))
       .sort((a, b) => a.distance - b.distance)
-  }, [filters])
+  }, [filters, registered])
 
   function openBooking(c: Caretaker) {
     setProfile(null)
@@ -52,9 +60,11 @@ export default function FindPage() {
             Find a trusted caretaker near you
           </h1>
           <p className="mt-1 text-muted-foreground">
-            {results.length} caretakers available around {query.location.split(",")[0]}
+            {results.length} matching profiles · {query.location}
           </p>
 
+          <p className="mt-2 text-xs text-muted-foreground">The directory includes sample profiles and locally submitted, unverified profiles. Location, date, time, and availability are not checked.</p>
+          {saveError && <p role="alert" className="mt-2 text-sm text-destructive">{saveError} <a href="/login" className="underline">Log in</a></p>}
           <div className="mt-5 grid gap-3 rounded-2xl border border-border bg-background p-3 lg:grid-cols-[1.2fr_1.4fr_1fr_1fr_auto]">
             <Field icon={Search} label="Care Type">
               <select
@@ -87,7 +97,7 @@ export default function FindPage() {
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none"
               />
             </Field>
-            <button className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px">
+            <button onClick={() => setFilters(f => ({ ...f, careType: query.care }))} className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px">
               <Search className="size-4" /> Search
             </button>
           </div>
@@ -128,7 +138,7 @@ export default function FindPage() {
             results.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-2">
                 {results.map((c) => (
-                  <CaretakerCard key={c.id} caretaker={c} onView={setProfile} onBook={setBooking} />
+                  <CaretakerCard key={c.id} caretaker={c} onView={setProfile} onBook={setBooking} onSave={toggleSaved} saved={saved.includes(c.id)} />
                 ))}
               </div>
             ) : (

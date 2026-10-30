@@ -1,0 +1,5 @@
+import { readRecords } from '@/lib/account-store'
+import type { Caretaker } from '@/lib/data'
+export type Application = { id:string; userId:string; name:string; location:string; experience:string; careTypes:string; skills:string; languages:string; availability:string; about:string; price:string; photoType:string; submittedAt:string }
+export async function applications() { return readRecords<Application>('caretaker-applications.json') }
+export function profile(a: Application): Caretaker { return { id: `application-${a.id}`, name:a.name, photo:`/api/caretaker/photo?id=${a.id}`, verified:false, rating:0, reviews:0, experience:Number(a.experience), skills:a.skills.split(',').map(x=>x.trim()).filter(Boolean), careTypes:a.careTypes.split(',').map(x=>x.trim()).filter(Boolean), location:a.location, distance:0, availability:`Availability: ${a.availability} (unverified)`, price:Number(a.price), languages:a.languages.split(',').map(x=>x.trim()).filter(Boolean), about:a.about, services:a.skills.split(',').map(x=>x.trim()).filter(Boolean), responseTime:'Not specified', map:{x:50,y:50} } }

@@ -9,7 +9,7 @@ const journeys = [
     title: "Find a Caretaker",
     description:
       "Find trusted caretakers based on location, care needs, experience, ratings, availability, and distance.",
-    features: ["Nearby caretakers", "Verified profiles", "Ratings & reviews", "Availability", "Easy booking"],
+    features: ["Nearby caretakers", "Unverified profiles", "Sample ratings", "Availability", "Easy booking"],
     cta: "Find Caretakers",
     href: "/find",
     accent: false,
@@ -20,7 +20,7 @@ const journeys = [
     title: "Become a Caretaker",
     description:
       "Offer your caregiving skills and connect with families who need trusted support in your community.",
-    features: ["Create your profile", "Add experience & skills", "Set availability", "Receive booking requests", "Build your reputation"],
+    features: ["Create your profile", "Add experience & skills", "Set availability", "View local requests", "Share your skills"],
     cta: "Become a Caretaker",
     href: "/caretaker",
     accent: true,

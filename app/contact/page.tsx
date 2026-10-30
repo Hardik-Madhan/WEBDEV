@@ -20,7 +20,7 @@ function validate(values: ContactValues) {
   if (!values.topic) errors.topic = "Choose what you’re getting in touch about."
   if (values.message.trim().length < 20) errors.message = "Tell us a little more (at least 20 characters)."
   else if (values.message.length > 2000) errors.message = "Please keep your message under 2,000 characters."
-  if (!values.consent) errors.consent = "Please agree so our team can reply to your enquiry."
+  if (!values.consent) errors.consent = "Please acknowledge that this enquiry will be stored locally."
   return errors
 }
 
@@ -80,7 +80,7 @@ export default function ContactPage() {
       setValues(initialValues)
       setErrors({})
       setSent(true)
-      setStatus("Thanks — your message has been saved and the CareSure team will be in touch.")
+      setStatus("Your enquiry has been saved locally. This prototype does not send it or provide a reply.")
     } catch (error) {
       setSent(false)
       setStatus(error instanceof Error ? error.message : "We couldn’t save your enquiry. Please try again.")
@@ -99,14 +99,14 @@ export default function ContactPage() {
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
             <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground"><HeartHandshake className="size-4 text-primary" /> HERE TO HELP</p>
             <h1 className="mt-5 max-w-3xl text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">Let’s find the right care, <span className="text-primary">together.</span></h1>
-            <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">Questions about finding a caretaker, joining our community, or using CareSure? Send our team a note and we’ll get back to you.</p>
+            <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">Try the contact form below. Enquiries are stored on this computer and are not sent to a support team.</p>
           </div>
         </section>
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8 lg:py-16">
           <aside className="space-y-5">
             <div className="rounded-3xl border border-border bg-card p-6">
-              <h2 className="text-lg font-bold text-foreground">A real person will reply.</h2>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Our care team is here for families and caretakers. We typically reply within two working days.</p>
+              <h2 className="text-lg font-bold text-foreground">Prototype contact form</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">No support team is connected, and no response will be sent.</p>
               <div className="mt-6 space-y-4">
                 <div className="flex gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Mail className="size-5" /></span><div><p className="text-sm font-semibold text-foreground">Email</p><a className="text-sm text-primary hover:underline" href="mailto:hello@caresure.in">hello@caresure.in</a></div></div>
                 <div className="flex gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground"><MapPin className="size-5" /></span><div><p className="text-sm font-semibold text-foreground">Currently serving</p><p className="text-sm text-muted-foreground">Bengaluru and nearby communities</p></div></div>
@@ -138,11 +138,11 @@ export default function ContactPage() {
               <div className="mt-1 flex justify-between text-xs text-muted-foreground"><span id="message-count">At least 20 characters</span><span>{values.message.length}/2000</span></div>
             </Field>
             <div className="mt-5">
-              <label className="flex items-start gap-3 text-sm text-muted-foreground"><input className="mt-1 size-4 accent-primary" type="checkbox" name="consent" checked={values.consent} onChange={handleChange} required aria-invalid={!!errors.consent} aria-describedby={errors.consent ? "consent-error" : undefined} /><span>I agree that CareSure may contact me about this enquiry. We’ll only use these details to reply.</span></label>
+              <label className="flex items-start gap-3 text-sm text-muted-foreground"><input className="mt-1 size-4 accent-primary" type="checkbox" name="consent" checked={values.consent} onChange={handleChange} required aria-invalid={!!errors.consent} aria-describedby={errors.consent ? "consent-error" : undefined} /><span>I understand this enquiry is stored locally and will not be sent.</span></label>
               {errors.consent && <p className="mt-1 text-xs text-destructive" id="consent-error" role="alert">{errors.consent}</p>}
             </div>
             {status && <p className={`mt-5 rounded-xl px-4 py-3 text-sm ${sent ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`} role="status" aria-live="polite">{status}</p>}
-            <button className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" type="submit" disabled={sending}>{sending ? "Sending…" : sent ? <><CheckCircle2 className="size-4" /> Send another message</> : <>Send message <ArrowRight className="size-4" /></>}</button>
+            <button className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" type="submit" disabled={sending}>{sending ? "Saving…" : sent ? <><CheckCircle2 className="size-4" /> Save another enquiry</> : <>Save enquiry <ArrowRight className="size-4" /></>}</button>
           </form>
         </section>
       </main>

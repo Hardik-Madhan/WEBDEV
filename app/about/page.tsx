@@ -4,7 +4,7 @@ import { BadgeCheck, HeartHandshake, MapPin, ShieldCheck, UsersRound } from "luc
 import Link from "next/link"
 
 const principles = [
-  { icon: ShieldCheck, title: "Safety comes first", text: "Profiles highlight identity checks, experience, and community reviews so families can make informed choices." },
+  { icon: ShieldCheck, title: "Safety comes first", text: "Profiles in this prototype are not verified, and example reviews are illustrative." },
   { icon: HeartHandshake, title: "Care is personal", text: "Every family and caretaker is different. We make it easier to compare support and find a good fit." },
   { icon: UsersRound, title: "Communities matter", text: "Care works best close to home. CareSure helps families discover local support in their community." },
 ]
@@ -19,7 +19,7 @@ export default function AboutPage() {
             <p className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground"><HeartHandshake className="size-4 text-primary" /> ABOUT CARESURE</p>
             <h1 className="mt-5 max-w-4xl text-balance text-4xl font-extrabold tracking-tight text-foreground sm:text-6xl">Trusted care should be easier to <span className="text-primary">find.</span></h1>
             <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">CareSure connects families with nearby caretakers, bringing profiles, availability, and care options together in one place.</p>
-            <div className="mt-8 flex flex-wrap gap-3"><Link className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90" href="/find">Explore caretakers</Link><Link className="rounded-xl border border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition hover:bg-muted" href="/contact">Talk to our team</Link></div>
+            <div className="mt-8 flex flex-wrap gap-3"><Link className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90" href="/find">Explore caretakers</Link><Link className="rounded-xl border border-border bg-card px-5 py-3 text-sm font-bold text-foreground transition hover:bg-muted" href="/contact">Contact form</Link></div>
           </div>
         </section>
         <section className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_1fr] lg:px-8 lg:py-20">

@@ -21,7 +21,7 @@ export function Hero() {
         <div>
           <span className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm">
             <span className="flex size-2 rounded-full bg-success" />
-            Trusted by 10,000+ families
+            A local care marketplace prototype
           </span>
 
           <h1
@@ -53,7 +53,7 @@ export function Hero() {
               Find a Caretaker
             </Link>
             <Link
-              href="/#become"
+              href="/caretaker"
               className="rounded-2xl border border-border bg-card px-6 py-3.5 text-base font-semibold text-foreground transition-all hover:bg-muted active:translate-y-px"
             >
               Become a Caretaker
@@ -96,16 +96,16 @@ export function Hero() {
                     className="w-full rounded-xl border border-border bg-background py-3 pl-9 pr-24 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/30"
                   />
                   <button
-                    onClick={() => setLocation("Koramangala, Bengaluru")}
+                    onClick={() => setLocation("")}
                     className="absolute right-1.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-lg bg-secondary px-2.5 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-secondary/70"
                   >
-                    <LocateFixed className="size-3.5" /> Use my location
+                    <LocateFixed className="size-3.5" /> Clear
                   </button>
                 </div>
               </div>
             </div>
             <Link
-              href="/find"
+              href={`/find?care=${encodeURIComponent(careType)}&location=${encodeURIComponent(location)}`}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-base font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px"
             >
               <Search className="size-4" /> Search Nearby Caretakers
@@ -128,29 +128,29 @@ export function Hero() {
             className="left-2 top-6 sm:-left-4"
             delay="0s"
             icon={<BadgeCheck className="size-4 text-primary" />}
-            title="Verified Caretaker"
-            subtitle="Identity confirmed"
+            title="Sample Caretaker"
+            subtitle="Illustrative profile"
           />
           <FloatingCard
             className="right-2 top-24 sm:-right-4"
             delay="1.2s"
             icon={<Star className="size-4 fill-chart-4 text-chart-4" />}
             title="4.9 Rating"
-            subtitle="126 reviews"
+            subtitle="Sample rating"
           />
           <FloatingCard
             className="bottom-24 left-2 sm:-left-6"
             delay="0.6s"
             icon={<MapPin className="size-4 text-accent" />}
             title="1.2 km Away"
-            subtitle="Nearby & ready"
+            subtitle="Example distance"
           />
           <FloatingCard
             className="bottom-6 right-2 sm:-right-4"
             delay="1.8s"
             icon={<span className="flex size-2.5 rounded-full bg-success" />}
-            title="Available Now"
-            subtitle="Responds in 10 min"
+            title="Sample availability"
+            subtitle="Not live"
           />
         </div>
       </div>

@@ -1,5 +1,4 @@
 import { Logo } from "@/components/site-navbar"
-import { AtSign, Globe, MessageCircle, Send } from "lucide-react"
 import Link from "next/link"
 
 const columns = [
@@ -7,7 +6,7 @@ const columns = [
     title: "Platform",
     links: [
       { label: "Find a Caretaker", href: "/find" },
-      { label: "Become a Caretaker", href: "/#become" },
+      { label: "Become a Caretaker", href: "/caretaker" },
       { label: "How It Works", href: "/#how" },
       { label: "Emergency Care", href: "/#emergency" },
     ],
@@ -20,17 +19,8 @@ const columns = [
       { label: "Contact", href: "/contact" },
     ],
   },
-  {
-    title: "Legal",
-    links: [
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
-      { label: "Help", href: "#" },
-    ],
-  },
-]
 
-const socials = [AtSign, MessageCircle, Send, Globe]
+]
 
 export function SiteFooter() {
   return (
@@ -39,20 +29,9 @@ export function SiteFooter() {
         <div className="max-w-xs">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Making trusted care easier to find. Compare verified caretakers near you and book with confidence.
+            Making trusted care easier to find. Explore care profiles and manage your requests in this prototype.
           </p>
-          <div className="mt-5 flex gap-2">
-            {socials.map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                aria-label="Social link"
-                className="flex size-9 items-center justify-center rounded-xl border border-border text-muted-foreground transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary"
-              >
-                <Icon className="size-4" />
-              </a>
-            ))}
-          </div>
+
         </div>
 
         {columns.map((col) => (

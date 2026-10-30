@@ -2,15 +2,17 @@
 
 import { AvailabilityBadge, Rating, VerifiedBadge } from "@/components/badges"
 import type { Caretaker } from "@/lib/data"
-import { Briefcase, MapPin } from "lucide-react"
+import { Briefcase, MapPin, Heart } from "lucide-react"
 
 type Props = {
   caretaker: Caretaker
   onView?: (c: Caretaker) => void
   onBook?: (c: Caretaker) => void
+  onSave?: (c: Caretaker) => void
+  saved?: boolean
 }
 
-export function CaretakerCard({ caretaker, onView, onBook }: Props) {
+export function CaretakerCard({ caretaker, onView, onBook, onSave, saved }: Props) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5">
       <div className="flex gap-4 p-4">
@@ -24,7 +26,7 @@ export function CaretakerCard({ caretaker, onView, onBook }: Props) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate text-lg font-bold text-foreground">{caretaker.name}</h3>
+            <h3 className="truncate text-lg font-bold text-foreground">{caretaker.name}</h3><button onClick={() => onSave?.(caretaker)} aria-label={`${saved ? "Remove" : "Save"} ${caretaker.name}`} aria-pressed={!!saved} className="rounded-lg p-2 text-primary hover:bg-muted"><Heart className={`size-5 ${saved ? "fill-current" : ""}`}/></button>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
             <Rating rating={caretaker.rating} reviews={caretaker.reviews} />
@@ -36,7 +38,7 @@ export function CaretakerCard({ caretaker, onView, onBook }: Props) {
           </p>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
             <MapPin className="size-3.5" />
-            {caretaker.location} · {caretaker.distance} km away
+            {caretaker.location}{caretaker.id.startsWith("application-") ? " · Distance unknown" : ` · ${caretaker.distance} km away`}
           </p>
         </div>
       </div>

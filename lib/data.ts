@@ -10,7 +10,7 @@ export type Caretaker = {
   careTypes: string[]
   location: string
   distance: number
-  availability: "Available Today" | "Available Now" | "Available Tomorrow" | "Booked"
+  availability: string
   price: number
   languages: string[]
   about: string
@@ -33,7 +33,7 @@ export const caretakers: Caretaker[] = [
     id: "priya-sharma",
     name: "Priya Sharma",
     photo: "/images/caretaker-1.png",
-    verified: true,
+    verified: false,
     rating: 4.9,
     reviews: 126,
     experience: 8,
@@ -54,7 +54,7 @@ export const caretakers: Caretaker[] = [
     id: "arjun-mehta",
     name: "Arjun Mehta",
     photo: "/images/caretaker-2.png",
-    verified: true,
+    verified: false,
     rating: 4.8,
     reviews: 94,
     experience: 12,
@@ -75,7 +75,7 @@ export const caretakers: Caretaker[] = [
     id: "neha-verma",
     name: "Neha Verma",
     photo: "/images/caretaker-3.png",
-    verified: true,
+    verified: false,
     rating: 4.9,
     reviews: 152,
     experience: 6,
@@ -96,7 +96,7 @@ export const caretakers: Caretaker[] = [
     id: "lakshmi-rao",
     name: "Lakshmi Rao",
     photo: "/images/caretaker-4.png",
-    verified: true,
+    verified: false,
     rating: 4.7,
     reviews: 210,
     experience: 15,
@@ -117,7 +117,7 @@ export const caretakers: Caretaker[] = [
     id: "rohan-iyer",
     name: "Rohan Iyer",
     photo: "/images/caretaker-5.png",
-    verified: true,
+    verified: false,
     rating: 4.8,
     reviews: 78,
     experience: 5,
@@ -138,7 +138,7 @@ export const caretakers: Caretaker[] = [
     id: "ananya-das",
     name: "Ananya Das",
     photo: "/images/caretaker-6.png",
-    verified: true,
+    verified: false,
     rating: 5.0,
     reviews: 63,
     experience: 9,

@@ -17,7 +17,7 @@ export const defaultFilters: Filters = {
   maxDistance: 10,
   minRating: 0,
   minExperience: 0,
-  maxPrice: 500,
+  maxPrice: 99999,
   availableOnly: false,
   careType: "All",
 }
@@ -108,8 +108,8 @@ export function FilterPanel({
         <input
           type="range"
           min={200}
-          max={500}
-          step={10}
+          max={99999}
+          step={1}
           value={filters.maxPrice}
           onChange={(e) => set("maxPrice", Number(e.target.value))}
           className="w-full accent-primary"

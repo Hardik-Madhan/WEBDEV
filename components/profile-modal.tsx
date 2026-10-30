@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   Globe,
   MapPin,
-  MessageCircle,
   ShieldCheck,
   Sparkles,
 } from "lucide-react"
@@ -109,7 +108,7 @@ export function ProfileModal({
           </p>
         </Section>
 
-        <Section title="Why this caretaker?">
+        {caretaker.verified && <Section title="Why this caretaker?">
           <div className="grid gap-2 sm:grid-cols-2">
             {trustPoints.map((t) => (
               <div key={t.label} className="flex items-center gap-2 rounded-xl bg-primary/5 px-3 py-2 text-sm font-medium text-foreground">
@@ -117,9 +116,9 @@ export function ProfileModal({
               </div>
             ))}
           </div>
-        </Section>
+        </Section>}
 
-        <Section title="Reviews">
+        {caretaker.verified && <Section title="Sample reviews">
           <div className="space-y-3">
             {sampleReviews.map((r) => (
               <div key={r.name} className="rounded-2xl border border-border p-3">
@@ -131,12 +130,10 @@ export function ProfileModal({
               </div>
             ))}
           </div>
-        </Section>
+        </Section>}
+        {!caretaker.verified && <p className="mt-6 text-sm text-muted-foreground">This profile is self-submitted and has not been verified. No reviews yet.</p>}
 
         <div className="sticky bottom-0 mt-6 flex gap-3 bg-card pt-2">
-          <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border px-4 py-3 font-semibold text-foreground transition-colors hover:bg-muted">
-            <MessageCircle className="size-4" /> Message
-          </button>
           <button
             onClick={() => onBook(caretaker)}
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px"

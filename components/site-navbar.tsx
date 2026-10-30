@@ -9,7 +9,7 @@ const navLinks = [
   { label: "Home", href: "/#home" },
   { label: "About", href: "/about" },
   { label: "Find Caretaker", href: "/find" },
-  { label: "Become a Caretaker", href: "/#become" },
+  { label: "Become a Caretaker", href: "/caretaker" },
   { label: "How It Works", href: "/#how" },
   { label: "Safety", href: "/#safety" },
   { label: "Contact", href: "/contact" },
@@ -77,13 +77,13 @@ export function SiteNavbar() {
 
         <div className="hidden items-center gap-2 lg:flex">
           <Link
-            href="/dashboard"
+            href="/login"
             className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
           >
             Login
           </Link>
           <Link
-            href="/dashboard"
+            href="/signup"
             className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
           >
             Sign Up
@@ -125,14 +125,14 @@ export function SiteNavbar() {
           ))}
           <div className="mt-2 grid grid-cols-2 gap-2">
             <Link
-              href="/dashboard"
+              href="/login"
               onClick={() => setOpen(false)}
               className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
             >
               Login
             </Link>
             <Link
-              href="/dashboard"
+              href="/signup"
               onClick={() => setOpen(false)}
               className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
             >

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
-import { HeartHandshake, Bell, Menu, X } from "lucide-react"
+import { HeartHandshake, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export type NavItem = {
@@ -54,19 +54,8 @@ export function DashboardShell({
           </span>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            className="relative grid h-10 w-10 place-items-center rounded-full border border-border text-foreground/70 transition hover:bg-muted"
-            aria-label="Notifications"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive" />
-          </button>
           <div className="flex items-center gap-2">
-            <img
-              src={user.photo || "/placeholder.svg"}
-              alt={user.name}
-              className="h-10 w-10 rounded-full object-cover"
-            />
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 font-bold text-primary" aria-hidden="true">{user.name.charAt(0).toUpperCase()}</span>
             <div className="hidden leading-tight sm:block">
               <p className="text-sm font-semibold">{user.name}</p>
               <p className="text-xs text-muted-foreground">{user.sub}</p>
@@ -137,6 +126,7 @@ function SidebarLink({
   return (
     <button
       onClick={onClick}
+      aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-medium transition",
         active ? "bg-primary text-primary-foreground shadow-sm" : "text-foreground/70 hover:bg-muted",

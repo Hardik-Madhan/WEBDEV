@@ -27,7 +27,7 @@ export function Rating({
   return (
     <span className={cn("inline-flex items-center gap-1 text-sm font-medium", className)}>
       <Star className="size-4 fill-chart-4 text-chart-4" />
-      <span className="text-foreground">{rating.toFixed(1)}</span>
+      <span className="text-foreground">{reviews === 0 ? "Not rated" : rating.toFixed(1)}</span>
       {reviews !== undefined && (
         <span className="text-muted-foreground">({reviews})</span>
       )}

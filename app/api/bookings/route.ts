@@ -2,12 +2,23 @@ import { NextResponse } from "next/server"
 import { randomUUID } from "node:crypto"
 import { caretakers } from "@/lib/data"
 import { appendJsonRecord } from "@/lib/json-store"
+import { applications, profile } from "@/lib/applications"
+import { currentUser, readRecords } from "@/lib/account-store"
 
 export const runtime = "nodejs"
 
 const times = new Set(["08:00 AM", "10:00 AM", "12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"])
 
+export async function GET() {
+  const user = await currentUser()
+  if (!user) return NextResponse.json({ error: "Please log in." }, { status: 401 })
+  const bookings = await readRecords<{ userId: string }>("bookings.json")
+  return NextResponse.json({ bookings: bookings.filter(b => b.userId === user.id) })
+}
+
 export async function POST(request: Request) {
+  const user = await currentUser()
+  if (!user) return NextResponse.json({ error: "Please log in before booking." }, { status: 401 })
   let body: unknown
   try {
     body = await request.json()
@@ -23,7 +34,7 @@ export async function POST(request: Request) {
   const date = typeof values.date === "string" ? values.date : ""
   const time = typeof values.time === "string" ? values.time : ""
   const address = typeof values.address === "string" ? values.address.trim() : ""
-  const caretaker = caretakers.find((item) => item.id === caretakerId)
+  const caretaker = [...caretakers, ...(await applications()).map(profile)].find((item) => item.id === caretakerId)
   const selectedDate = new Date(date)
 
   if (!caretaker) return NextResponse.json({ error: "That caretaker is no longer available." }, { status: 404 })
@@ -36,6 +47,11 @@ export async function POST(request: Request) {
   }
 
   const booking = {
+    userId: user.id,
+    familyName: user.name,
+    familyEmail: user.email,
+    familyPhone: user.phone,
+    careNeeds: user.careNeeds,
     id: `CS-${randomUUID().slice(0, 8).toUpperCase()}`,
     caretakerId: caretaker.id,
     caretakerName: caretaker.name,

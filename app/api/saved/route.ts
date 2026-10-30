@@ -1,0 +1,5 @@
+import { NextResponse } from 'next/server'
+import { changeRecords, currentUser, publicUser, type User } from '@/lib/account-store'
+import { applications, profile } from '@/lib/applications'
+import { caretakers } from '@/lib/data'
+export async function POST(request: Request) { const user = await currentUser(); if (!user) return NextResponse.json({ error: 'Please log in to save caretakers.' }, { status: 401 }); try { const { id } = await request.json(); if (![...caretakers, ...(await applications()).map(profile)].some(c => c.id === id)) return NextResponse.json({ error: 'Caretaker not found.' }, { status: 404 }); const updated = await changeRecords<User, User>('users.json', users => { const u = users.find(x => x.id === user.id)!; u.saved ||= []; u.saved = u.saved.includes(id) ? u.saved.filter(x => x !== id) : [...u.saved, id]; return u }); return NextResponse.json({ user: publicUser(updated) }) } catch { return NextResponse.json({ error: 'Could not save caretaker.' }, { status: 500 }) } }

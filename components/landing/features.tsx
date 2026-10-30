@@ -13,15 +13,15 @@ import {
 } from "lucide-react"
 
 const features = [
-  { icon: MapPin, title: "Location-based Search", text: "Discover caretakers closest to you." },
-  { icon: UserCheck, title: "Verified Profiles", text: "Identity-checked, trusted caregivers." },
-  { icon: Star, title: "Ratings & Reviews", text: "Real feedback from real families." },
-  { icon: Wifi, title: "Availability", text: "See who's available right now." },
-  { icon: CalendarCheck, title: "Easy Booking", text: "Book care in just a few taps." },
-  { icon: Map, title: "Map Discovery", text: "Explore caretakers on a live map." },
-  { icon: MessagesSquare, title: "Communication", text: "Message before you book." },
-  { icon: Siren, title: "Emergency Discovery", text: "Find urgent support fast." },
-  { icon: ShieldCheck, title: "Safety & Trust", text: "Protections at every step." },
+  { icon: MapPin, title: "Location-based Search", text: "Browse sample and locally submitted profiles." },
+  { icon: UserCheck, title: "Caretaker Profiles", text: "View self-submitted skills and experience." },
+  { icon: Star, title: "Ratings & Reviews", text: "Ratings on sample profiles are illustrative." },
+  { icon: Wifi, title: "Availability", text: "Availability is self-reported and not live." },
+  { icon: CalendarCheck, title: "Easy Booking", text: "Save a care request to a local account." },
+  { icon: Map, title: "Map Discovery", text: "Explore an illustrative map, not live locations." },
+  { icon: MessagesSquare, title: "Communication", text: "Messaging is not connected yet." },
+  { icon: Siren, title: "Emergency Discovery", text: "Call local emergency services for urgent help." },
+  { icon: ShieldCheck, title: "Safety & Trust", text: "Profiles and identity are not verified." },
   { icon: Smartphone, title: "Mobile Friendly", text: "A smooth experience on any device." },
 ]
 
@@ -33,7 +33,7 @@ export function Features() {
           Everything You Need to Find Care
         </h2>
         <p className="mt-3 text-pretty text-lg text-muted-foreground">
-          Thoughtful features designed to make care simple, safe, and stress-free.
+          Explore the features available in this local prototype.
         </p>
       </Reveal>
 

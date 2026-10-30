@@ -7,7 +7,7 @@ const process = [
   { icon: Sparkles, label: "Experience & Skills" },
   { icon: MapPin, label: "Location" },
   { icon: CalendarClock, label: "Availability" },
-  { icon: BadgeCheck, label: "Verification" },
+  { icon: BadgeCheck, label: "ID photo" },
 ]
 
 export function BecomeCta() {
