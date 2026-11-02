@@ -1,59 +1,63 @@
 "use client"
 
+// ==============================================================================
+//  CARESURE - FIND CARETAKER DIRECTORY (HTML / JSX STRUCTURE & BINDING)
+//  File: app/find/page.tsx
+//  Architecture:
+//    1. JavaScript Logic: Imported from "./find.logic.ts" (filtering, state, API)
+//    2. Components: FilterPanel, MapView, CaretakerCard, BookingModal
+//    3. HTML / JSX Structure: Semantic layout below binding controls & views
+// ==============================================================================
+
 import { BookingModal } from "@/components/booking-modal"
 import { CaretakerCard } from "@/components/caretaker-card"
-import { defaultFilters, FilterPanel, type Filters } from "@/components/filter-panel"
+import { defaultFilters, FilterPanel } from "@/components/filter-panel"
 import { MapView } from "@/components/map-view"
 import { Modal } from "@/components/modal"
 import { ProfileModal } from "@/components/profile-modal"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavbar } from "@/components/site-navbar"
-import { caretakers, careTypes, type Caretaker } from "@/lib/data"
+import { careTypes } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import { CalendarDays, Clock, List, MapIcon, MapPin, Search, SlidersHorizontal } from "lucide-react"
-import { useEffect, useMemo, useState } from "react"
+
+// ------------------------------------------------------------------------------
+// IMPORT SEPARATED JAVASCRIPT LOGIC
+// ------------------------------------------------------------------------------
+import { useFindLogic } from "./find.logic"
 
 export default function FindPage() {
-  const [filters, setFilters] = useState<Filters>(defaultFilters)
-  const [view, setView] = useState<"list" | "map">("list")
-  const [filtersOpen, setFiltersOpen] = useState(false)
-  const [profile, setProfile] = useState<Caretaker | null>(null)
-  const [booking, setBooking] = useState<Caretaker | null>(null)
-  const [registered, setRegistered] = useState<Caretaker[]>([])
-  useEffect(() => { fetch("/api/caretaker").then(r => r.json()).then(d => setRegistered(d.caretakers || [])).catch(() => {}) }, [])
-  const [saved, setSaved] = useState<string[]>([])
-  const [saveError, setSaveError] = useState("")
-  useEffect(() => { fetch("/api/account").then(r => r.json()).then(d => setSaved(d.user?.saved || [])).catch(() => {}) }, [])
-  async function toggleSaved(c: Caretaker) { try { const response = await fetch("/api/saved", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c.id }) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setSaved(data.user.saved); setSaveError("") } catch (e) { setSaveError(e instanceof Error ? e.message : "Could not save caretaker.") } }
-  const [query, setQuery] = useState({ care: "Elderly Care", location: "Koramangala, Bengaluru" })
-
-  useEffect(() => { const params = new URLSearchParams(window.location.search); const care = params.get("care"); const location = params.get("location"); if (care && (careTypes as readonly string[]).includes(care)) { setQuery(q => ({ ...q, care, location: location || q.location })); setFilters(f => ({ ...f, careType: care })) } }, [])
-
-  const results = useMemo(() => {
-    return [...caretakers, ...registered]
-      .filter((c) => c.distance <= filters.maxDistance)
-      .filter((c) => c.rating >= filters.minRating)
-      .filter((c) => c.experience >= filters.minExperience)
-      .filter((c) => c.price <= filters.maxPrice)
-      .filter((c) =>
-        filters.availableOnly
-          ? c.availability === "Available Now" || c.availability === "Available Today"
-          : true,
-      )
-      .filter((c) => (filters.careType === "All" ? true : c.careTypes.some(t => t.toLowerCase() === filters.careType.toLowerCase())))
-      .sort((a, b) => a.distance - b.distance)
-  }, [filters, registered])
-
-  function openBooking(c: Caretaker) {
-    setProfile(null)
-    setBooking(c)
-  }
+  // BIND JAVASCRIPT LOGIC: Access filter state, view toggling, and search results
+  const {
+    filters,
+    setFilters,
+    view,
+    setView,
+    filtersOpen,
+    setFiltersOpen,
+    profile,
+    setProfile,
+    booking,
+    setBooking,
+    saved,
+    saveError,
+    query,
+    setQuery,
+    results,
+    toggleSaved,
+    openBooking,
+  } = useFindLogic()
 
   return (
     <div className="min-h-screen bg-background">
+      {/* ==================================================================== */}
+      {/* 1. HEADER & NAVIGATION BAR                                           */}
+      {/* ==================================================================== */}
       <SiteNavbar />
 
-      {/* Search header */}
+      {/* ==================================================================== */}
+      {/* 2. SEARCH HEADER (Care Type, Location, Date, Time inputs)            */}
+      {/* ==================================================================== */}
       <section className="border-b border-border bg-card">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
@@ -63,9 +67,19 @@ export default function FindPage() {
             {results.length} matching profiles · {query.location}
           </p>
 
-          <p className="mt-2 text-xs text-muted-foreground">The directory includes sample profiles and locally submitted, unverified profiles. Location, date, time, and availability are not checked.</p>
-          {saveError && <p role="alert" className="mt-2 text-sm text-destructive">{saveError} <a href="/login" className="underline">Log in</a></p>}
+          <p className="mt-2 text-xs text-muted-foreground">
+            Directory includes sample profiles and locally submitted caretaker applications.
+          </p>
+
+          {saveError && (
+            <p role="alert" className="mt-2 text-sm text-destructive">
+              {saveError} <a href="/login" className="underline">Log in</a>
+            </p>
+          )}
+
+          {/* Interactive Search Bar Controls */}
           <div className="mt-5 grid gap-3 rounded-2xl border border-border bg-background p-3 lg:grid-cols-[1.2fr_1.4fr_1fr_1fr_auto]">
+            {/* Input 1: Care Type Select */}
             <Field icon={Search} label="Care Type">
               <select
                 value={query.care}
@@ -77,6 +91,8 @@ export default function FindPage() {
                 ))}
               </select>
             </Field>
+
+            {/* Input 2: Location Input */}
             <Field icon={MapPin} label="Location">
               <input
                 value={query.location}
@@ -84,12 +100,16 @@ export default function FindPage() {
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none"
               />
             </Field>
+
+            {/* Input 3: Date Picker */}
             <Field icon={CalendarDays} label="Date">
               <input
                 type="date"
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none"
               />
             </Field>
+
+            {/* Input 4: Time Picker */}
             <Field icon={Clock} label="Time">
               <input
                 type="time"
@@ -97,51 +117,83 @@ export default function FindPage() {
                 className="w-full bg-transparent text-sm font-medium text-foreground outline-none"
               />
             </Field>
-            <button onClick={() => setFilters(f => ({ ...f, careType: query.care }))} className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px">
+
+            {/* Search Action Button */}
+            <button
+              onClick={() => setFilters((f) => ({ ...f, careType: query.care }))}
+              className="flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px"
+            >
               <Search className="size-4" /> Search
             </button>
           </div>
         </div>
       </section>
 
-      {/* Controls bar */}
+      {/* ==================================================================== */}
+      {/* 3. CONTROLS BAR: Mobile Filter Trigger & View Toggles (List vs Map)  */}
+      {/* ==================================================================== */}
       <div className="sticky top-15 z-30 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+          {/* Mobile Filter Button */}
           <button
             onClick={() => setFiltersOpen(true)}
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted lg:hidden"
           >
             <SlidersHorizontal className="size-4" /> Filters
           </button>
+
+          {/* Result Count Indicator */}
           <p className="hidden text-sm text-muted-foreground lg:block">
             Showing <span className="font-semibold text-foreground">{results.length}</span> caretakers
           </p>
+
+          {/* Interactive Toggle: Switch between List Grid View and Map View */}
           <div className="inline-flex rounded-xl border border-border bg-card p-1">
-            <ToggleBtn active={view === "list"} onClick={() => setView("list")} icon={List} label="List View" />
-            <ToggleBtn active={view === "map"} onClick={() => setView("map")} icon={MapIcon} label="Map View" />
+            <ToggleBtn
+              active={view === "list"}
+              onClick={() => setView("list")}
+              icon={List}
+              label="List View"
+            />
+            <ToggleBtn
+              active={view === "map"}
+              onClick={() => setView("map")}
+              icon={MapIcon}
+              label="Map View"
+            />
           </div>
         </div>
       </div>
 
-      {/* Body */}
+      {/* ==================================================================== */}
+      {/* 4. MAIN BODY: FILTER SIDEBAR + DYNAMIC RESULTS                       */}
+      {/* ==================================================================== */}
       <div className="mx-auto max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid lg:grid-cols-[280px_1fr] lg:px-8">
-        {/* Filters sidebar */}
+        {/* Desktop Filter Sidebar */}
         <aside className="hidden lg:block">
           <div className="sticky top-40 rounded-3xl border border-border bg-card p-5">
             <FilterPanel filters={filters} onChange={setFilters} />
           </div>
         </aside>
 
-        {/* Results */}
+        {/* Dynamic View: Card Grid OR Interactive Map */}
         <div>
           {view === "list" ? (
             results.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-2">
                 {results.map((c) => (
-                  <CaretakerCard key={c.id} caretaker={c} onView={setProfile} onBook={setBooking} onSave={toggleSaved} saved={saved.includes(c.id)} />
+                  <CaretakerCard
+                    key={c.id}
+                    caretaker={c}
+                    onView={setProfile}
+                    onBook={setBooking}
+                    onSave={toggleSaved}
+                    saved={saved.includes(c.id)}
+                  />
                 ))}
               </div>
             ) : (
+              /* Empty Search Results Message */
               <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border py-24 text-center">
                 <Search className="size-10 text-muted-foreground" />
                 <p className="mt-4 text-lg font-bold text-foreground">No caretakers match your filters</p>
@@ -155,14 +207,16 @@ export default function FindPage() {
               </div>
             )
           ) : (
+            /* Map View Canvas */
             <MapView caretakers={results} onView={setProfile} />
           )}
         </div>
       </div>
 
-      <SiteFooter />
-
-      {/* Mobile filter bottom sheet */}
+      {/* ==================================================================== */}
+      {/* 5. MODAL DIALOGS (Profile View & 5-Step Booking Wizard)             */}
+      {/* ==================================================================== */}
+      {/* Mobile filter sheet */}
       <Modal open={filtersOpen} onClose={() => setFiltersOpen(false)} label="Filters" className="sm:max-w-md">
         <div className="p-6">
           <FilterPanel filters={filters} onChange={setFilters} />
@@ -175,8 +229,16 @@ export default function FindPage() {
         </div>
       </Modal>
 
+      {/* Caretaker Profile Modal */}
       <ProfileModal caretaker={profile} open={!!profile} onClose={() => setProfile(null)} onBook={openBooking} />
+
+      {/* 5-Step Interactive Booking Wizard Modal */}
       <BookingModal caretaker={booking} open={!!booking} onClose={() => setBooking(null)} />
+
+      {/* ==================================================================== */}
+      {/* 6. FOOTER                                                            */}
+      {/* ==================================================================== */}
+      <SiteFooter />
     </div>
   )
 }

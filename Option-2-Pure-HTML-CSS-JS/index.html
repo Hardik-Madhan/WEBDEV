@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - HOMEPAGE (PURE HTML)                                    -->
+  <!--  Code for this page: Main landing showcase with hero care search,     -->
+  <!--  care journeys, 4-step workflow, features, and safety guidelines.    -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareSure · Trusted Care, Right When You Need It</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/home.css">
+</head>
+<body>
+
+  <!-- Prototype Notice Banner -->
+  <div class="prototype-banner">
+    Prototype only: profiles and availability are for demonstration. Submissions are stored locally in the <code>data/</code> folder.
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- 1. NAVIGATION BAR (Linked to all other pages)                        -->
+  <!-- ==================================================================== -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link" style="color:var(--primary); font-weight:700;">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="find.html" class="nav-link">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+        <a href="#how" class="nav-link">How It Works</a>
+        <a href="#safety" class="nav-link">Safety</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div id="desktop-auth-actions" class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-outline">Sign Up</a>
+        <a href="find.html" class="btn btn-primary">Find a Caretaker</a>
+      </div>
+
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <!-- Mobile Drawer Navigation -->
+    <div id="mobile-drawer" class="mobile-drawer">
+      <a href="index.html" class="nav-link" style="color:var(--primary); font-weight:700;">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="find.html" class="nav-link">Find Caretaker</a>
+      <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <div id="mobile-auth-actions" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <a href="login.html" class="btn btn-outline" style="flex:1; text-align:center;">Login</a>
+        <a href="signup.html" class="btn btn-outline" style="flex:1; text-align:center;">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================================================================== -->
+    <!-- 2. HERO SHOWCASE SECTION                                           -->
+    <!-- ================================================================== -->
+    <section class="hero-section">
+      <div class="hero-grid">
+        <div>
+          <span class="hero-tag">
+            <span class="hero-tag-dot"></span>
+            A local care marketplace prototype
+          </span>
+
+          <h1 class="hero-title">
+            Trusted Care, <br>
+            <span class="gradient-text">Right When You Need It.</span>
+          </h1>
+
+          <p class="hero-desc">
+            Connect with verified, compassionate caretakers for elderly care, post-operative recovery, newborn support, and home assistance.
+          </p>
+
+          <!-- Quick Search Filter Box -->
+          <div class="hero-search-card">
+            <form action="find.html" method="GET" class="hero-search-row">
+              <select name="care" class="hero-input-field">
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="Patient Care">Patient Care</option>
+                <option value="Child Care">Child Care</option>
+                <option value="Companion Care">Companion Care</option>
+                <option value="Home Assistance">Home Assistance</option>
+              </select>
+
+              <input type="text" name="location" class="hero-input-field" placeholder="Koramangala, Bengaluru" value="Koramangala, Bengaluru">
+
+              <button type="submit" class="btn btn-primary">Find Care ➔</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Hero visual image -->
+        <div class="hero-image-wrap">
+          <img src="images/hero-care.png" alt="CareSure caregiver helping senior citizen" class="hero-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 3. CARE JOURNEYS SECTION                                           -->
+    <!-- ================================================================== -->
+    <section class="container">
+      <div class="section-header">
+        <p class="section-label">CARE JOURNEYS</p>
+        <h2 class="section-heading">Support tailored to every season of life</h2>
+        <p class="section-subheading">Choose a specialty to explore experienced caregivers nearby.</p>
+      </div>
+
+      <div class="cards-grid-3">
+        <!-- Journey 1: Elderly Care -->
+        <div class="feature-card">
+          <div class="feature-icon-box">👵</div>
+          <h3 class="feature-card-title">Elderly Companionship</h3>
+          <p class="feature-card-desc">Daily routine assistance, gentle mobility support, medication schedules, and warm conversation.</p>
+          <a href="find.html?care=Elderly+Care" class="btn btn-outline" style="margin-top:1.25rem;">Explore Elderly Care →</a>
+        </div>
+
+        <!-- Journey 2: Patient Care -->
+        <div class="feature-card">
+          <div class="feature-icon-box">🏥</div>
+          <h3 class="feature-card-title">Post-Op & Patient Care</h3>
+          <p class="feature-card-desc">Wound dressing, vital signs monitoring, physical rehabilitation, and hospital recovery support.</p>
+          <a href="find.html?care=Patient+Care" class="btn btn-outline" style="margin-top:1.25rem;">Explore Patient Care →</a>
+        </div>
+
+        <!-- Journey 3: Child Care -->
+        <div class="feature-card">
+          <div class="feature-icon-box">👶</div>
+          <h3 class="feature-card-title">Infant & Child Care</h3>
+          <p class="feature-card-desc">Experienced nannies and babysitters providing engaging play, nutrition, and peaceful rest.</p>
+          <a href="find.html?care=Child+Care" class="btn btn-outline" style="margin-top:1.25rem;">Explore Child Care →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 4. HOW IT WORKS SECTION                                            -->
+    <!-- ================================================================== -->
+    <section id="how" class="container" style="background-color:#fff; border-radius:var(--radius-xl); border:1px solid var(--border-color); margin-top:2rem; margin-bottom:2rem;">
+      <div class="section-header">
+        <p class="section-label">SIMPLE PROCESS</p>
+        <h2 class="section-heading">Getting care in 4 easy steps</h2>
+        <p class="section-subheading">From finding a nearby caregiver to booking your required hours.</p>
+      </div>
+
+      <div class="cards-grid-3" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="step-card">
+          <span class="step-num-badge">1</span>
+          <h3 class="feature-card-title">Search</h3>
+          <p class="feature-card-desc">Enter care type and your neighborhood.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num-badge">2</span>
+          <h3 class="feature-card-title">Compare</h3>
+          <p class="feature-card-desc">Check verified rates, distance, reviews, and experience.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num-badge">3</span>
+          <h3 class="feature-card-title">Book</h3>
+          <p class="feature-card-desc">Pick date and time in the 5-step booking wizard.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-num-badge">4</span>
+          <h3 class="feature-card-title">Get Care</h3>
+          <p class="feature-card-desc">Connect with your caregiver and track requests in your dashboard.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 5. EMERGENCY CARE BANNER                                           -->
+    <!-- ================================================================== -->
+    <section class="container">
+      <div class="emergency-box">
+        <div>
+          <span style="color:var(--destructive); font-weight:700; font-size:0.875rem;">⚠️ URGENT SUPPORT</span>
+          <h2 style="font-size:1.875rem; font-weight:800; margin-top:0.5rem;">Need care urgently?</h2>
+          <p style="margin-top:0.5rem; color:var(--text-muted); max-width:600px;">
+            This prototype is designed for scheduled care requests. For critical or emergency medical needs, please call your local ambulance or emergency dispatch service immediately.
+          </p>
+        </div>
+        <a href="find.html" class="btn btn-outline" style="border-color:var(--destructive); color:var(--destructive);">Browse Sample Care Profiles</a>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 6. SAFETY & TRUST STANDARDS                                        -->
+    <!-- ================================================================== -->
+    <section id="safety" class="container">
+      <div class="section-header">
+        <p class="section-label">SAFETY FIRST</p>
+        <h2 class="section-heading">Built with trust and transparency</h2>
+        <p class="section-subheading">Understanding how CareSure prototypes and protects information.</p>
+      </div>
+
+      <div class="cards-grid-3">
+        <div class="feature-card">
+          <div class="feature-icon-box">🔒</div>
+          <h3 class="feature-card-title">Local JSON Storage</h3>
+          <p class="feature-card-desc">All accounts, contact messages, and bookings are saved directly on this computer in your local <code>data/</code> folder.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🛡️</div>
+          <h3 class="feature-card-title">Self-Reported Profiles</h3>
+          <p class="feature-card-desc">Profiles and reviews are illustrative for this academic prototype, demonstrating the booking and filtering workflow.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📋</div>
+          <h3 class="feature-card-title">Transparent Pricing</h3>
+          <p class="feature-card-desc">Hourly rates are listed clearly upfront with automated duration cost calculations in the booking modal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 7. BECOME A CARETAKER CTA BANNER                                   -->
+    <!-- ================================================================== -->
+    <section class="container">
+      <div style="background:linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); border-radius:var(--radius-xl); padding:3.5rem 2rem; color:#fff; text-align:center;">
+        <h2 style="font-size:2.25rem; font-weight:800;">Are you a compassionate caregiver?</h2>
+        <p style="margin-top:1rem; font-size:1.125rem; opacity:0.9; max-width:650px; margin-left:auto; margin-right:auto;">
+          Join our local care community. Share your qualifications, choose your hourly rate, and connect with families nearby.
+        </p>
+        <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+          <a href="caretaker.html" class="btn" style="background-color:#fff; color:var(--primary); font-weight:700;">Submit Caretaker Application</a>
+          <a href="contact.html" class="btn btn-outline" style="background:transparent; color:#fff; border-color:#fff;">Contact Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- 8. GLOBAL FOOTER                                                     -->
+  <!-- ==================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <p style="margin-top:1rem; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+          Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Platform</h3>
+        <ul class="footer-links-list">
+          <li><a href="find.html">Find a Caretaker</a></li>
+          <li><a href="caretaker.html">Become a Caretaker</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#emergency">Emergency Care</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links-list">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="#safety">Safety</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Account</h3>
+        <ul class="footer-links-list">
+          <li><a href="dashboard.html">User Dashboard</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2026 CareSure · Pure HTML, CSS & JavaScript</p>
+      <p>Data stored in local JSON files</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>

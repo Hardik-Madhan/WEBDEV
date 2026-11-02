@@ -17,6 +17,11 @@ node_modules
 # Local JSON form submissions can contain contact details
 data/*.json
 !data/.gitkeep
+Option-1-NextJS/data/*.json
+!Option-1-NextJS/data/.gitkeep
+Option-2-Pure-HTML-CSS-JS/data/*.json
+!Option-2-Pure-HTML-CSS-JS/data/.gitkeep
 
 data/uploads/
+Option-1-NextJS/data/uploads/
 *.tsbuildinfo

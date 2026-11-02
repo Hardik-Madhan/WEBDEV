@@ -1,19 +1,302 @@
 "use client"
-import { useEffect, useState, type FormEvent } from 'react'
-import Link from 'next/link'
-import { CheckCircle2 } from 'lucide-react'
-import { Field, inputClass } from '@/components/account-form'
-import { SiteNavbar } from '@/components/site-navbar'
-import { SiteFooter } from '@/components/site-footer'
 
-export default function CaretakerApplication() {
-  const [user, setUser] = useState<{name:string;phone:string;location:string}|null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const [submitted, setSubmitted] = useState(false)
-  useEffect(() => { fetch('/api/account').then(r => r.json()).then(d => setUser(d.user)).catch(() => setError('Unable to load your account. Please refresh.')).finally(() => setLoading(false)) }, [])
-  async function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); setError(''); setBusy(true); try { const response = await fetch('/api/caretaker', { method: 'POST', body: new FormData(e.currentTarget) }); const data = await response.json(); if (!response.ok) throw new Error(data.error); setSubmitted(true); window.scrollTo(0, 0) } catch (err) { setError(err instanceof Error ? err.message : 'Unable to submit.') } finally { setBusy(false) } }
-  return <div className="min-h-screen bg-background"><SiteNavbar/><main className="mx-auto max-w-3xl px-4 py-12 sm:py-16"><p className="text-sm font-bold uppercase tracking-wider text-primary">Join our care community</p><h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">Become a caretaker</h1><p className="mt-3 max-w-2xl text-muted-foreground">Share your experience, skills, and availability to create an application.</p><div className="mt-5 rounded-xl bg-amber-50 p-4 text-sm leading-relaxed text-amber-900"><strong>Local prototype:</strong> applications and uploaded images are stored unencrypted on this computer. Profiles are visible to other users of this local prototype but are not verified. Use sample information and images, not real identity documents.</div>
-  {loading ? <p className="mt-8">Loading…</p> : submitted ? <div className="mt-8 rounded-3xl border border-border bg-card p-8"><CheckCircle2 className="size-10 text-emerald-600"/><h2 className="mt-4 text-2xl font-bold">Application saved</h2><p className="mt-2 text-muted-foreground">Your application is stored locally for this prototype. Your profile is visible in the local directory as unverified. Requests will appear in your dashboard; no notification is sent.</p><Link className="mt-6 inline-block font-semibold text-primary" href="/dashboard">Go to your dashboard →</Link></div> : !user ? <div className="mt-8 rounded-3xl border border-border bg-card p-8"><h2 className="text-xl font-bold">Start with an account</h2><p className="mt-2 text-muted-foreground">Create an account or log in to save your caretaker application.</p><div className="mt-5 flex gap-3"><Link className="rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground" href="/signup">Sign up</Link><Link className="rounded-xl border border-border px-5 py-3 font-semibold" href="/login">Log in</Link></div></div> : <form onSubmit={submit} className="mt-8 space-y-6">
-  <section className="rounded-3xl border border-border bg-card p-6 sm:p-8"><h2 className="text-xl font-bold">Personal details</h2><p className="mt-1 text-sm text-muted-foreground">How families can identify and contact you.</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Field label="Full name" name="name" defaultValue={user.name} required minLength={2} maxLength={100}/><Field label="Phone number" name="phone" type="tel" defaultValue={user.phone} required minLength={7} maxLength={30}/><Field label="Area and city" name="location" defaultValue={user.location} required maxLength={200}/><Field label="Languages spoken" name="languages" required maxLength={200} placeholder="English, Hindi…"/></div></section>
-  <section className="rounded-3xl border border-border bg-card p-6 sm:p-8"><h2 className="text-xl font-bold">Experience and skills</h2><div className="mt-5 grid gap-4 sm:grid-cols-2"><Field label="Years of experience" name="experience" type="number" min="0" max="99" required/><Field label="Hourly rate (₹)" name="price" type="number" min="1" max="99999" required/><Field label="Care types" name="careTypes" required maxLength={200} placeholder="Elderly Care, Child Care…"/><Field label="Skills and qualifications" name="skills" required maxLength={500} placeholder="First aid, meal preparation…"/><Field label="Availability" name="availability" required maxLength={200} placeholder="Weekdays, 9 AM–5 PM"/></div><label className="mt-4 block text-sm font-semibold">About your experience<textarea className={inputClass} name="about" rows={4} maxLength={2000} required placeholder="Describe your background and the support you provide."/></label></section>
-  <section className="rounded-3xl border border-border bg-card p-6 sm:p-8"><h2 className="text-xl font-bold">Photos and identification</h2><p className="mt-1 text-sm text-muted-foreground">For this prototype, use sample images only. JPG, PNG or WebP, maximum 5 MB each.</p><div className="mt-5 grid gap-4 sm:grid-cols-2"><Field label="Profile photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required/><label className="block text-sm font-semibold">ID type<select name="idType" className={inputClass} required defaultValue=""><option value="" disabled>Select ID type</option><option>Government ID</option><option>Passport</option><option>Driving licence</option><option>Other</option></select></label><Field label="Photo of ID" name="idPhoto" type="file" accept="image/jpeg,image/png,image/webp" required/></div></section>
-  {error && <p role="alert" className="text-sm text-destructive">{error}</p>}<button disabled={busy} className="rounded-xl bg-primary px-7 py-3 font-semibold text-primary-foreground disabled:opacity-50">{busy ? 'Saving application…' : 'Submit application'}</button></form>}</main><SiteFooter/></div>
+// ==============================================================================
+//  CARESURE - BECOME A CARETAKER (HTML / JSX STRUCTURE & BINDING)
+//  File: app/caretaker/page.tsx
+//  Architecture:
+//    1. CSS Styling: Imported from "./caretaker.css"
+//    2. JavaScript Logic: Imported from "./caretaker.logic.ts" (auth check & API)
+//    3. HTML / JSX Structure: Semantic markup below binding CSS + JS together
+// ==============================================================================
+
+import Link from "next/link"
+import { CheckCircle2 } from "lucide-react"
+import { SiteNavbar } from "@/components/site-navbar"
+import { SiteFooter } from "@/components/site-footer"
+
+// ------------------------------------------------------------------------------
+// IMPORT SEPARATED CSS AND JAVASCRIPT LOGIC
+// ------------------------------------------------------------------------------
+import "./caretaker.css"
+import { useCaretakerLogic } from "./caretaker.logic"
+
+export default function CaretakerPage() {
+  // BIND JAVASCRIPT LOGIC: Access session, submission state, and submit handler
+  const {
+    user,
+    loading,
+    error,
+    busy,
+    submitted,
+    submitApplication,
+  } = useCaretakerLogic()
+
+  return (
+    <div className="caretaker-page-container">
+      {/* ==================================================================== */}
+      {/* 1. HEADER & NAVIGATION BAR                                           */}
+      {/* ==================================================================== */}
+      <SiteNavbar />
+
+      <main className="caretaker-main-content">
+        {/* ================================================================== */}
+        {/* 2. HERO TITLE & INTRO                                              */}
+        {/* ================================================================== */}
+        <p className="caretaker-hero-badge">Join our care community</p>
+        <h1 className="caretaker-hero-title">Become a caretaker</h1>
+        <p className="caretaker-hero-desc">
+          Share your experience, skills, and availability to create an application.
+        </p>
+
+        {/* Prototype Notice */}
+        <div className="caretaker-warning-box">
+          <strong>Local prototype:</strong> applications and uploaded images are
+          stored unencrypted in your local <code>data/</code> folder. Submitted profiles
+          become visible in the local directory.
+        </div>
+
+        {/* ================================================================== */}
+        {/* 3. CONDITIONAL RENDERING: LOADING / SUCCESS / AUTH PROMPT / FORM   */}
+        {/* ================================================================== */}
+        {loading ? (
+          <p className="mt-8 text-sm text-muted-foreground">Checking authentication…</p>
+        ) : submitted ? (
+          /* STATE A: Application Successfully Saved to JSON */
+          <div className="caretaker-card-box">
+            <CheckCircle2 className="size-10 text-emerald-600" />
+            <h2 className="caretaker-card-title">Application saved</h2>
+            <p className="caretaker-card-text">
+              Your application has been stored locally in <code>data/caretaker-applications.json</code>.
+              Your profile is now visible in the directory, and care requests will appear in your dashboard.
+            </p>
+            <Link className="caretaker-link-primary" href="/dashboard">
+              Go to your dashboard →
+            </Link>
+          </div>
+        ) : !user ? (
+          /* STATE B: User Not Logged In */
+          <div className="caretaker-card-box">
+            <h2 className="caretaker-card-title">Start with an account</h2>
+            <p className="caretaker-card-text">
+              Please create an account or log in to submit your caretaker application.
+            </p>
+            <div className="caretaker-auth-actions">
+              <Link className="caretaker-btn-signup" href="/signup">
+                Sign up
+              </Link>
+              <Link className="caretaker-btn-login" href="/login">
+                Log in
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* STATE C: Caretaker Application Form */
+          <form onSubmit={submitApplication} className="caretaker-form">
+            {/* SECTION 1: Personal Details */}
+            <section className="caretaker-form-section">
+              <h2 className="caretaker-section-title">1. Personal details</h2>
+              <p className="caretaker-section-subtitle">
+                How families can identify and contact you.
+              </p>
+
+              <div className="caretaker-two-col-grid">
+                <label className="caretaker-field-block">
+                  Full name *
+                  <input
+                    name="name"
+                    defaultValue={user.name}
+                    required
+                    minLength={2}
+                    maxLength={100}
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Phone number *
+                  <input
+                    name="phone"
+                    type="tel"
+                    defaultValue={user.phone}
+                    required
+                    minLength={7}
+                    maxLength={30}
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Area and city *
+                  <input
+                    name="location"
+                    defaultValue={user.location}
+                    required
+                    maxLength={200}
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Languages spoken *
+                  <input
+                    name="languages"
+                    required
+                    maxLength={200}
+                    placeholder="English, Hindi, Kannada…"
+                    className="caretaker-field-input"
+                  />
+                </label>
+              </div>
+            </section>
+
+            {/* SECTION 2: Experience & Skills */}
+            <section className="caretaker-form-section">
+              <h2 className="caretaker-section-title">2. Experience and skills</h2>
+              <div className="caretaker-two-col-grid">
+                <label className="caretaker-field-block">
+                  Years of experience *
+                  <input
+                    name="experience"
+                    type="number"
+                    min="0"
+                    max="99"
+                    required
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Hourly rate (₹) *
+                  <input
+                    name="price"
+                    type="number"
+                    min="1"
+                    max="99999"
+                    required
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Care types *
+                  <input
+                    name="careTypes"
+                    required
+                    maxLength={200}
+                    placeholder="Elderly Care, Patient Care…"
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Skills & qualifications *
+                  <input
+                    name="skills"
+                    required
+                    maxLength={500}
+                    placeholder="First aid, physiotherapy, meal prep…"
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  Availability schedule *
+                  <input
+                    name="availability"
+                    required
+                    maxLength={200}
+                    placeholder="Weekdays, 9 AM – 5 PM"
+                    className="caretaker-field-input"
+                  />
+                </label>
+              </div>
+
+              <label className="caretaker-field-block mt-4">
+                About your caregiving experience *
+                <textarea
+                  name="about"
+                  rows={4}
+                  maxLength={2000}
+                  required
+                  placeholder="Describe your background, specialty, and how you support patients and families."
+                  className="caretaker-field-textarea"
+                />
+              </label>
+            </section>
+
+            {/* SECTION 3: Photos & Identification Upload */}
+            <section className="caretaker-form-section">
+              <h2 className="caretaker-section-title">3. Photos and identification</h2>
+              <p className="caretaker-section-subtitle">
+                JPG, PNG, or WebP files up to 5 MB each. Saved to <code>data/uploads/</code>.
+              </p>
+
+              <div className="caretaker-two-col-grid">
+                <label className="caretaker-field-block">
+                  Profile photo *
+                  <input
+                    name="photo"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                    className="caretaker-field-input"
+                  />
+                </label>
+
+                <label className="caretaker-field-block">
+                  ID document type *
+                  <select
+                    name="idType"
+                    required
+                    defaultValue=""
+                    className="caretaker-field-input"
+                  >
+                    <option value="" disabled>Select ID type</option>
+                    <option>Government ID</option>
+                    <option>Passport</option>
+                    <option>Driving licence</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+
+                <label className="caretaker-field-block">
+                  Photo of ID *
+                  <input
+                    name="idPhoto"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                    className="caretaker-field-input"
+                  />
+                </label>
+              </div>
+            </section>
+
+            {/* Error Message Alert */}
+            {error && (
+              <p role="alert" className="caretaker-error-alert">
+                {error}
+              </p>
+            )}
+
+            {/* Submit Button */}
+            <div>
+              <button
+                type="submit"
+                disabled={busy}
+                className="caretaker-submit-btn"
+              >
+                {busy ? "Saving application to local JSON…" : "Submit application"}
+              </button>
+            </div>
+          </form>
+        )}
+      </main>
+
+      {/* ==================================================================== */}
+      {/* 4. FOOTER                                                            */}
+      {/* ==================================================================== */}
+      <SiteFooter />
+    </div>
+  )
 }

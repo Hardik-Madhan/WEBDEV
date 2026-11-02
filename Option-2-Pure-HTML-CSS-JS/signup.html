@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - SIGN UP PAGE (PURE HTML)                                -->
+  <!--  Code for this page: Account creation form with password match       -->
+  <!--  validation that writes new users directly into data/users.json.    -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up · CareSure</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body class="auth-page-container">
+
+  <!-- Navigation Bar -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="find.html" class="nav-link">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-primary">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-main-wrapper">
+    <div class="auth-card-box">
+      <p class="auth-category-tag">CARE SURE ACCOUNT</p>
+      <h1 class="auth-card-title">Create your account</h1>
+      <p class="auth-card-desc">Tell us about yourself so your care requests include the right details.</p>
+
+      <p class="auth-warning-banner">
+        Prototype: user accounts are created and stored into <code>data/users.json</code>.
+      </p>
+
+      <!-- Registration Form: Validated by scripts/auth.js -->
+      <form id="signup-form" class="auth-form" novalidate>
+        <label class="auth-field-label">
+          Full name *
+          <input id="signup-name" type="text" class="auth-input" placeholder="e.g. Alex Morgan" required minlength="2">
+        </label>
+
+        <label class="auth-field-label">
+          Phone number *
+          <input id="signup-phone" type="tel" class="auth-input" placeholder="+91 98765 43210" required>
+        </label>
+
+        <label class="auth-field-label">
+          Area and city *
+          <input id="signup-location" type="text" class="auth-input" placeholder="Koramangala, Bengaluru" required>
+        </label>
+
+        <label class="auth-field-label">
+          <span>Care needs </span><span class="auth-field-optional">(optional)</span>
+          <textarea id="signup-care-needs" class="auth-textarea" rows="3" placeholder="What kind of support are you looking for?"></textarea>
+        </label>
+
+        <label class="auth-field-label">
+          Email address *
+          <input id="signup-email" type="email" class="auth-input" placeholder="alex@example.com" required>
+        </label>
+
+        <label class="auth-field-label">
+          Password * (at least 8 characters)
+          <input id="signup-password" type="password" class="auth-input" placeholder="••••••••" required minlength="8">
+        </label>
+
+        <label class="auth-field-label">
+          Confirm password *
+          <input id="signup-confirm-password" type="password" class="auth-input" placeholder="••••••••" required minlength="8">
+        </label>
+
+        <p id="auth-error" class="auth-error-alert" style="display:none;"></p>
+
+        <button id="auth-submit-btn" type="submit" class="auth-submit-btn">
+          Create account
+        </button>
+      </form>
+
+      <p class="auth-footer-text">
+        Already have an account? <a href="login.html" class="auth-footer-link">Log in</a>
+      </p>
+    </div>
+  </main>
+
+  <script src="scripts/main.js"></script>
+  <script src="scripts/auth.js"></script>
+</body>
+</html>

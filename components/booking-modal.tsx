@@ -1,5 +1,12 @@
 "use client"
 
+// ==============================================================================
+//  CARESURE - 5-STEP BOOKING WIZARD MODAL
+//  Code for this modal: Interactive multi-step booking form that walks the user
+//  through choosing a date, selecting a time slot, typing their address, reviewing
+//  estimated cost, and saving the booking into data/bookings.json.
+// ==============================================================================
+
 import Link from "next/link"
 import { Modal } from "@/components/modal"
 import type { Caretaker } from "@/lib/data"
@@ -15,9 +22,13 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
+// Workflow steps shown on the top progress bar
 const steps = ["Date", "Time", "Location", "Review", "Confirm"]
+
+// Standard available care shift hours
 const times = ["08:00 AM", "10:00 AM", "12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"]
 
+// Generates the upcoming 14 calendar days for the interactive date picker
 function nextDays(count: number) {
   const out: { key: string; day: string; date: string; month: string }[] = []
   const now = new Date()
@@ -53,6 +64,7 @@ export function BookingModal({
   const [submitting, setSubmitting] = useState(false)
   const days = nextDays(14)
 
+  // Resets all input fields when closing the modal
   function reset() {
     setStep(0)
     setDate("")
@@ -73,9 +85,15 @@ export function BookingModal({
 
   const selectedDay = days.find((d) => d.key === date)
   const dateLabel = selectedDay ? `${selectedDay.day}, ${selectedDay.month} ${selectedDay.date}` : ""
+  
+  // Validation guard: ensures current step has required input before enabling "Continue"
   const canContinue =
-    (step === 0 && date) || (step === 1 && time) || (step === 2 && address.trim().length >= 5) || step === 3
+    (step === 0 && date) ||
+    (step === 1 && time) ||
+    (step === 2 && address.trim().length >= 5) ||
+    step === 3
 
+  // Form submission: sends booking details to the backend which writes to data/bookings.json
   async function submitBooking() {
     if (!caretaker || !selectedDay || submitting) return
     setSubmitting(true)
@@ -97,6 +115,7 @@ export function BookingModal({
     }
   }
 
+  // STEP 5: Confirmation view showing the generated booking ID and links
   if (confirmed) {
     return (
       <Modal open={open} onClose={handleClose} label="Request saved">
@@ -107,9 +126,10 @@ export function BookingModal({
           </div>
           <h2 className="text-2xl font-bold text-foreground">Request saved</h2>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Your request has been saved locally. Registered caretakers can view it in their dashboard; sample profiles cannot receive requests.
+            Your care request has been saved locally in <code>data/bookings.json</code>.
           </p>
 
+          {/* Booking Summary Box */}
           <div className="mt-6 w-full space-y-3 rounded-2xl border border-border bg-muted/40 p-4 text-left">
             <Row label="Caretaker" value={caretaker.name} />
             <Row label="Date" value={dateLabel} />
@@ -137,8 +157,8 @@ export function BookingModal({
   return (
     <Modal open={open} onClose={handleClose} label={`Book ${caretaker.name}`}>
       <div className="p-6">
+        {/* Caretaker Avatar & Header */}
         <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={caretaker.photo || "/placeholder.svg"}
             alt=""
@@ -150,7 +170,7 @@ export function BookingModal({
           </div>
         </div>
 
-        {/* Stepper */}
+        {/* Stepper Progress Bar */}
         <div className="mt-6 flex items-center gap-1.5">
           {steps.map((s, i) => (
             <div key={s} className="flex flex-1 flex-col items-center gap-1.5">
@@ -169,7 +189,9 @@ export function BookingModal({
           ))}
         </div>
 
+        {/* Dynamic Wizard Step Content */}
         <div className="mt-6 min-h-[220px]">
+          {/* STEP 1: Date Selection Grid */}
           {step === 0 && (
             <div>
               <StepHeading icon={CalendarDays} title="Choose a date" />
@@ -194,6 +216,7 @@ export function BookingModal({
             </div>
           )}
 
+          {/* STEP 2: Time Slot Selection */}
           {step === 1 && (
             <div>
               <StepHeading icon={Clock} title="Choose a time" />
@@ -216,6 +239,7 @@ export function BookingModal({
             </div>
           )}
 
+          {/* STEP 3: Care Service Location Address */}
           {step === 2 && (
             <div>
               <StepHeading icon={MapPin} title="Where is the care needed?" />
@@ -236,6 +260,7 @@ export function BookingModal({
             </div>
           )}
 
+          {/* STEP 4: Review Booking Summary & Estimated Pricing */}
           {step === 3 && (
             <div>
               <StepHeading icon={Home} title="Review details" />
@@ -256,6 +281,7 @@ export function BookingModal({
           )}
         </div>
 
+        {/* Wizard Navigation Buttons (Back & Continue / Submit) */}
         <div className="mt-6 flex gap-3">
           {step > 0 && (
             <button
@@ -270,11 +296,17 @@ export function BookingModal({
             onClick={() => (step === 3 ? void submitBooking() : setStep((s) => s + 1))}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-3 font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {submitting ? "Saving booking…" : step === 3 ? "Submit Request" : "Continue"}
+            {submitting ? "Saving booking to JSON…" : step === 3 ? "Submit Request" : "Continue"}
             {step < 3 && <ArrowRight className="size-4" />}
           </button>
         </div>
-        {bookingError && <p className="mt-3 text-sm text-destructive" role="alert">{bookingError} {bookingError.includes("log in") && <Link className="underline" href="/login">Log in</Link>}</p>}
+
+        {/* Auth or Validation Warning */}
+        {bookingError && (
+          <p className="mt-3 text-sm text-destructive" role="alert">
+            {bookingError} {bookingError.includes("log in") && <Link className="underline" href="/login">Log in</Link>}
+          </p>
+        )}
       </div>
     </Modal>
   )

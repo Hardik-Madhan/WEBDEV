@@ -19,7 +19,14 @@ const columns = [
       { label: "Contact", href: "/contact" },
     ],
   },
-
+  {
+    title: "Account",
+    links: [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Login", href: "/login" },
+      { label: "Sign Up", href: "/signup" },
+    ],
+  },
 ]
 
 export function SiteFooter() {
@@ -29,9 +36,8 @@ export function SiteFooter() {
         <div className="max-w-xs">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Making trusted care easier to find. Explore care profiles and manage your requests in this prototype.
+            Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
           </p>
-
         </div>
 
         {columns.map((col) => (

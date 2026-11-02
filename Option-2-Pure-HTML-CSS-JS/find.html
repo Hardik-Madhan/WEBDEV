@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - FIND CARETAKER DIRECTORY (PURE HTML)                    -->
+  <!--  Code for this page: Filterable caretaker directory, list/map views, -->
+  <!--  and 5-step booking wizard writing directly into data/bookings.json. -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find a Caretaker · CareSure</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/find.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="find.html" class="nav-link" style="color:var(--primary); font-weight:700;">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+        <a href="index.html#how" class="nav-link">How It Works</a>
+        <a href="index.html#safety" class="nav-link">Safety</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div id="desktop-auth-actions" class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-outline">Sign Up</a>
+        <a href="find.html" class="btn btn-primary">Find a Caretaker</a>
+      </div>
+
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="find.html" class="nav-link" style="color:var(--primary); font-weight:700;">Find Caretaker</a>
+      <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <div id="mobile-auth-actions" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <a href="login.html" class="btn btn-outline" style="flex:1; text-align:center;">Login</a>
+        <a href="signup.html" class="btn btn-outline" style="flex:1; text-align:center;">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================================================================== -->
+    <!-- 1. SEARCH FILTER HEADER (Care type, location, date, time)          -->
+    <!-- ================================================================== -->
+    <section class="find-search-header">
+      <div style="max-width:1200px; margin:0 auto; padding:0 1.5rem;">
+        <h1 style="font-size:2rem; font-weight:800;">Find a trusted caretaker near you</h1>
+        <p style="color:var(--text-muted); margin-top:0.25rem;">
+          Showing <span id="results-count" style="font-weight:700; color:var(--text-main);">6</span> verified & unverified caregivers in Bengaluru
+        </p>
+
+        <!-- Search bar controls -->
+        <div class="search-bar-controls">
+          <div class="search-field-unit">
+            <div>
+              <label>Care Type</label>
+              <select id="search-care-type">
+                <option value="All">All Care Types</option>
+                <option value="Elderly Care">Elderly Care</option>
+                <option value="Patient Care">Patient Care</option>
+                <option value="Child Care">Child Care</option>
+                <option value="Companion Care">Companion Care</option>
+                <option value="Home Assistance">Home Assistance</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="search-field-unit">
+            <div>
+              <label>Location</label>
+              <input type="text" id="search-location" value="Koramangala, Bengaluru">
+            </div>
+          </div>
+
+          <div class="search-field-unit">
+            <div>
+              <label>Date</label>
+              <input type="date">
+            </div>
+          </div>
+
+          <div class="search-field-unit">
+            <div>
+              <label>Time</label>
+              <input type="time" value="10:00">
+            </div>
+          </div>
+
+          <button id="search-btn" class="btn btn-primary" style="height:100%;">Search</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 2. CONTROLS BAR: List View vs Map View Switcher                    -->
+    <!-- ================================================================== -->
+    <div class="controls-bar">
+      <div class="controls-inner">
+        <p style="font-size:0.875rem; color:var(--text-muted);">
+          Sort: <strong>Distance (Nearest first)</strong>
+        </p>
+
+        <!-- Interactive List/Map view toggle switch -->
+        <div class="view-toggle-box">
+          <button id="list-view-btn" class="view-toggle-btn active">📋 List View</button>
+          <button id="map-view-btn" class="view-toggle-btn">🗺️ Map View</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- 3. DIRECTORY LAYOUT: FILTER SIDEBAR + RESULTS / MAP               -->
+    <!-- ================================================================== -->
+    <div class="directory-layout">
+      <!-- Filter Sidebar: Range sliders and filter pills -->
+      <aside class="filter-sidebar">
+        <div class="filter-card">
+          <!-- Care Type filter pills -->
+          <div>
+            <p class="filter-group-title">Care Type</p>
+            <div class="filter-pill-wrap">
+              <span class="filter-pill care-type-pill active" data-value="All">All</span>
+              <span class="filter-pill care-type-pill" data-value="Elderly Care">Elderly</span>
+              <span class="filter-pill care-type-pill" data-value="Patient Care">Patient</span>
+              <span class="filter-pill care-type-pill" data-value="Child Care">Child</span>
+              <span class="filter-pill care-type-pill" data-value="Home Assistance">Home Help</span>
+            </div>
+          </div>
+
+          <!-- Distance slider -->
+          <div>
+            <p class="filter-group-title">
+              <span>Distance</span>
+              <span id="distance-label" style="font-weight:normal; color:var(--text-muted);">Within 10 km</span>
+            </p>
+            <input type="range" id="distance-slider" min="1" max="10" value="10" class="range-slider">
+          </div>
+
+          <!-- Rating filter -->
+          <div>
+            <p class="filter-group-title">Minimum Rating</p>
+            <div class="filter-pill-wrap">
+              <span class="filter-pill rating-pill active" data-value="0">Any</span>
+              <span class="filter-pill rating-pill" data-value="4.0">4.0+</span>
+              <span class="filter-pill rating-pill" data-value="4.5">4.5+</span>
+              <span class="filter-pill rating-pill" data-value="4.8">4.8+</span>
+            </div>
+          </div>
+
+          <!-- Experience slider -->
+          <div>
+            <p class="filter-group-title">
+              <span>Experience</span>
+              <span id="experience-label" style="font-weight:normal; color:var(--text-muted);">0+ years</span>
+            </p>
+            <input type="range" id="experience-slider" min="0" max="15" value="0" class="range-slider">
+          </div>
+        </div>
+      </aside>
+
+      <!-- Results Container: Renders dynamic cards or interactive map -->
+      <div>
+        <div id="caretakers-grid" class="caretakers-grid">
+          <!-- Populated dynamically by scripts/find.js -->
+        </div>
+
+        <!-- Interactive Map Canvas (Toggled on "Map View") -->
+        <div id="map-canvas" class="map-canvas-container">
+          <!-- Map pins populated dynamically by scripts/find.js -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- 4. 5-STEP BOOKING WIZARD MODAL (Saves to data/bookings.json)         -->
+  <!-- ==================================================================== -->
+  <div id="booking-modal" class="modal-overlay">
+    <div class="modal-content-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <span style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted);">Appointment Wizard</span>
+          <h2 id="booking-caretaker-name" style="font-size:1.25rem; font-weight:800;">Book Caretaker</h2>
+        </div>
+        <button id="booking-modal-close" class="btn btn-outline" style="padding:0.25rem 0.6rem;">✕</button>
+      </div>
+
+      <!-- Stepper progress bar: 5 steps -->
+      <div class="modal-stepper">
+        <span class="stepper-bar active"></span>
+        <span class="stepper-bar"></span>
+        <span class="stepper-bar"></span>
+        <span class="stepper-bar"></span>
+        <span class="stepper-bar"></span>
+      </div>
+
+      <!-- Dynamic Step Content Form -->
+      <div id="wizard-step-content" style="min-height:180px;"></div>
+
+      <div style="margin-top:1.5rem; display:flex; justify-content:space-between; gap:1rem;">
+        <button id="wizard-back-btn" class="btn btn-outline" style="display:none;">← Back</button>
+        <button id="wizard-continue-btn" class="btn btn-primary" style="flex:1;">Continue ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <p style="margin-top:1rem; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+          Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Platform</h3>
+        <ul class="footer-links-list">
+          <li><a href="find.html">Find a Caretaker</a></li>
+          <li><a href="caretaker.html">Become a Caretaker</a></li>
+          <li><a href="index.html#how">How It Works</a></li>
+          <li><a href="index.html#emergency">Emergency Care</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links-list">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="index.html#safety">Safety</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Account</h3>
+        <ul class="footer-links-list">
+          <li><a href="dashboard.html">User Dashboard</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2026 CareSure · Pure HTML, CSS & JavaScript</p>
+      <p>Data stored in local JSON files</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+  <script src="scripts/find.js"></script>
+</body>
+</html>

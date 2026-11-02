@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - CONTACT US PAGE (PURE HTML)                             -->
+  <!--  Code for this page: Contact form with field validation, office info,-->
+  <!--  and direct saving to data/contacts.json without external database.  -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us · CareSure</title>
+
+  <!-- Separate CSS stylesheets: global styles + page-specific styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/contact.css">
+</head>
+<body class="contact-page-container">
+
+  <!-- Transparent local prototype banner for visitors -->
+  <div class="prototype-banner">
+    Prototype only: forms and enquiries are stored directly on this computer in <code>data/contacts.json</code>.
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- 1. GLOBAL NAVIGATION BAR (Links all pages together)                   -->
+  <!-- ==================================================================== -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <!-- Desktop navigation links -->
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="find.html" class="nav-link">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+        <a href="index.html#how" class="nav-link">How It Works</a>
+        <a href="index.html#safety" class="nav-link">Safety</a>
+        <a href="contact.html" class="nav-link" style="color:var(--primary); font-weight:700;">Contact</a>
+      </nav>
+
+      <!-- Desktop auth action buttons: updated dynamically by scripts/main.js if logged in -->
+      <div id="desktop-auth-actions" class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-outline">Sign Up</a>
+        <a href="find.html" class="btn btn-primary">Find a Caretaker</a>
+      </div>
+
+      <!-- Mobile hamburger toggle button -->
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle navigation menu">☰</button>
+    </div>
+
+    <!-- Mobile slide-down drawer menu -->
+    <div id="mobile-drawer" class="mobile-drawer">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="find.html" class="nav-link">Find Caretaker</a>
+      <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+      <a href="contact.html" class="nav-link" style="color:var(--primary); font-weight:700;">Contact</a>
+      <div id="mobile-auth-actions" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <a href="login.html" class="btn btn-outline" style="flex:1; text-align:center;">Login</a>
+        <a href="signup.html" class="btn btn-outline" style="flex:1; text-align:center;">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================================================================== -->
+    <!-- 2. HERO BANNER: Page title and friendly welcome note               -->
+    <!-- ================================================================== -->
+    <section class="contact-hero-section">
+      <div class="contact-hero-container">
+        <span class="contact-hero-badge">🤝 HERE TO HELP</span>
+        <h1 class="contact-hero-title">
+          Let’s find the right care, <span class="contact-hero-title-highlight">together.</span>
+        </h1>
+        <p class="contact-hero-desc">
+          Try the contact form below. Submissions are saved directly into your local <code>data/contacts.json</code> file.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 3. MAIN SECTION: SIDEBAR INFORMATION + CONTACT FORM                -->
+    <!-- ================================================================== -->
+    <section class="contact-content-grid">
+      <!-- Sidebar: Office info, emergency helpline disclaimer -->
+      <aside class="contact-sidebar">
+        <div class="contact-info-card">
+          <h2 class="contact-info-card-title">Prototype Contact Center</h2>
+          <p class="contact-info-card-subtitle">
+            This contact form is wired to your local Node.js JSON storage.
+          </p>
+
+          <div class="contact-info-list">
+            <!-- Email Item -->
+            <div class="contact-info-row">
+              <span class="contact-icon-bubble-primary">✉️</span>
+              <div>
+                <p class="contact-info-item-label">Email Support</p>
+                <a class="contact-info-item-link" href="mailto:hello@caresure.in">hello@caresure.in</a>
+              </div>
+            </div>
+
+            <!-- Location Item -->
+            <div class="contact-info-row">
+              <span class="contact-icon-bubble-secondary">📍</span>
+              <div>
+                <p class="contact-info-item-label">Community Hub</p>
+                <p class="contact-info-item-text">Bengaluru, Karnataka</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Emergency Disclaimer -->
+        <div class="contact-urgent-box">
+          <p class="contact-urgent-title">Need urgent medical help?</p>
+          <p class="contact-urgent-desc">
+            CareSure is not an emergency hospital service. Please call your local emergency medical number for urgent care.
+          </p>
+        </div>
+      </aside>
+
+      <!-- Contact form: validated and submitted via scripts/contact.js -->
+      <form id="contact-form" class="contact-form-container" novalidate>
+        <div class="contact-form-header">
+          <div>
+            <p class="contact-form-category">CONTACT CARESURE</p>
+            <h2 class="contact-form-heading">How can we help?</h2>
+          </div>
+          <span class="contact-form-badge">Required fields *</span>
+        </div>
+
+        <!-- Input Fields 2-Column Grid -->
+        <div class="contact-fields-grid">
+          <!-- Field 1: Name -->
+          <div class="contact-field-group">
+            <label for="contact-name" class="contact-field-label">Your name *</label>
+            <input id="contact-name" name="name" type="text" class="contact-input" placeholder="e.g. Alex Morgan" required>
+            <p id="contact-name-error" class="contact-error-message"></p>
+          </div>
+
+          <!-- Field 2: Email -->
+          <div class="contact-field-group">
+            <label for="contact-email" class="contact-field-label">Email address *</label>
+            <input id="contact-email" name="email" type="email" class="contact-input" placeholder="alex@example.com" required>
+            <p id="contact-email-error" class="contact-error-message"></p>
+          </div>
+
+          <!-- Field 3: Phone (Optional) -->
+          <div class="contact-field-group">
+            <label for="contact-phone" class="contact-field-label">
+              <span>Phone number</span>
+              <span class="contact-field-optional">Optional</span>
+            </label>
+            <input id="contact-phone" name="phone" type="tel" class="contact-input" placeholder="+91 98765 43210">
+            <p id="contact-phone-error" class="contact-error-message"></p>
+          </div>
+
+          <!-- Field 4: Topic Selection Dropdown -->
+          <div class="contact-field-group">
+            <label for="contact-topic" class="contact-field-label">What is this about? *</label>
+            <select id="contact-topic" name="topic" class="contact-input" required>
+              <option value="">Select a topic</option>
+              <option value="Finding care">Finding care</option>
+              <option value="Joining as a caretaker">Joining as a caretaker</option>
+              <option value="Partnership">Partnership</option>
+              <option value="General question">General question</option>
+              <option value="Other">Other</option>
+            </select>
+            <p id="contact-topic-error" class="contact-error-message"></p>
+          </div>
+        </div>
+
+        <!-- Field 5: Message Textarea with Live Character Counter -->
+        <div class="contact-field-group">
+          <label for="contact-message" class="contact-field-label">Your message *</label>
+          <textarea id="contact-message" name="message" class="contact-textarea" placeholder="Tell us what you need help with (at least 20 characters)…" required></textarea>
+          <div class="contact-char-count-row">
+            <span>At least 20 characters</span>
+            <span id="char-counter">0 / 2000</span>
+          </div>
+          <p id="contact-message-error" class="contact-error-message"></p>
+        </div>
+
+        <!-- Field 6: Consent Checkbox -->
+        <div class="contact-checkbox-row">
+          <label class="contact-checkbox-label">
+            <input id="contact-consent" name="consent" type="checkbox" class="contact-checkbox-input" required>
+            <span>I understand this enquiry will be saved locally into <code>data/contacts.json</code>.</span>
+          </label>
+          <p id="contact-consent-error" class="contact-error-message"></p>
+        </div>
+
+        <!-- Status feedback alert (displays success green or error red) -->
+        <p id="status-banner" style="display:none;"></p>
+
+        <!-- Submit Button -->
+        <button id="submit-btn" type="submit" class="contact-submit-button">
+          <span>Save enquiry</span> ➔
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- 4. GLOBAL FOOTER (Multi-column links across the entire site)         -->
+  <!-- ==================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <p style="margin-top:1rem; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+          Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Platform</h3>
+        <ul class="footer-links-list">
+          <li><a href="find.html">Find a Caretaker</a></li>
+          <li><a href="caretaker.html">Become a Caretaker</a></li>
+          <li><a href="index.html#how">How It Works</a></li>
+          <li><a href="index.html#emergency">Emergency Care</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links-list">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="index.html#safety">Safety</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Account</h3>
+        <ul class="footer-links-list">
+          <li><a href="dashboard.html">User Dashboard</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2026 CareSure · Built with pure HTML, CSS & JavaScript</p>
+      <p>Data stored in local JSON files</p>
+    </div>
+  </footer>
+
+  <!-- Separate JavaScript files: global session handler + contact form validation logic -->
+  <script src="scripts/main.js"></script>
+  <script src="scripts/contact.js"></script>
+</body>
+</html>

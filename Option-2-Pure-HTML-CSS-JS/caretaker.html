@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - BECOME A CARETAKER (PURE HTML)                          -->
+  <!--  Code for this page: Multi-section caretaker application form with   -->
+  <!--  file uploads saving directly to data/caretaker-applications.json.  -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become a Caretaker · CareSure</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/caretaker.css">
+</head>
+<body class="caretaker-page-container">
+
+  <!-- Navigation Bar -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="find.html" class="nav-link">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link" style="color:var(--primary); font-weight:700;">Become a Caretaker</a>
+        <a href="index.html#how" class="nav-link">How It Works</a>
+        <a href="index.html#safety" class="nav-link">Safety</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div id="desktop-auth-actions" class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-outline">Sign Up</a>
+        <a href="find.html" class="btn btn-primary">Find a Caretaker</a>
+      </div>
+
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <!-- Mobile Drawer -->
+    <div id="mobile-drawer" class="mobile-drawer">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="find.html" class="nav-link">Find Caretaker</a>
+      <a href="caretaker.html" class="nav-link" style="color:var(--primary); font-weight:700;">Become a Caretaker</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <div id="mobile-auth-actions" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <a href="login.html" class="btn btn-outline" style="flex:1; text-align:center;">Login</a>
+        <a href="signup.html" class="btn btn-outline" style="flex:1; text-align:center;">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="caretaker-main-content">
+    <p class="caretaker-hero-badge">Join our care community</p>
+    <h1 class="caretaker-hero-title">Become a caretaker</h1>
+    <p class="caretaker-hero-desc">
+      Share your experience, skills, and availability to create an application.
+    </p>
+
+    <div class="caretaker-warning-box">
+      <strong>Local prototype:</strong> applications are saved into <code>data/caretaker-applications.json</code>.
+    </div>
+
+    <!-- Success Confirmation Box (Shown after submission) -->
+    <div id="caretaker-success-box" class="caretaker-card-box" style="display:none;">
+      <span style="font-size:2.5rem;">✅</span>
+      <h2 class="caretaker-card-title">Application Saved!</h2>
+      <p class="caretaker-card-text">
+        Your application is stored locally in <code>data/caretaker-applications.json</code>. Your profile is now visible in the local directory, and care requests will appear in your dashboard.
+      </p>
+      <a href="dashboard.html" class="caretaker-link-primary">Go to your dashboard →</a>
+    </div>
+
+    <!-- Caretaker Application Form -->
+    <form id="caretaker-form" class="caretaker-form">
+      <!-- Section 1: Personal Details -->
+      <section class="caretaker-form-section">
+        <h2 class="caretaker-section-title">1. Personal details</h2>
+        <p class="caretaker-section-subtitle">How families can identify and contact you.</p>
+
+        <div class="caretaker-two-col-grid">
+          <label class="caretaker-field-block">
+            Full name *
+            <input name="name" type="text" class="caretaker-field-input" placeholder="e.g. Priya Sharma" required minlength="2">
+          </label>
+
+          <label class="caretaker-field-block">
+            Phone number *
+            <input name="phone" type="tel" class="caretaker-field-input" placeholder="+91 98765 43210" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Area and city *
+            <input name="location" type="text" class="caretaker-field-input" placeholder="Koramangala, Bengaluru" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Languages spoken *
+            <input name="languages" type="text" class="caretaker-field-input" placeholder="English, Hindi, Kannada" required>
+          </label>
+        </div>
+      </section>
+
+      <!-- Section 2: Experience and Skills -->
+      <section class="caretaker-form-section">
+        <h2 class="caretaker-section-title">2. Experience and skills</h2>
+        <div class="caretaker-two-col-grid">
+          <label class="caretaker-field-block">
+            Years of experience *
+            <input name="experience" type="number" min="0" max="99" class="caretaker-field-input" placeholder="e.g. 5" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Hourly rate (₹) *
+            <input name="price" type="number" min="1" max="99999" class="caretaker-field-input" placeholder="e.g. 350" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Care types *
+            <input name="careTypes" type="text" class="caretaker-field-input" placeholder="Elderly Care, Patient Care" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Skills & qualifications *
+            <input name="skills" type="text" class="caretaker-field-input" placeholder="First aid, vitals, meal prep" required>
+          </label>
+
+          <label class="caretaker-field-block">
+            Availability schedule *
+            <input name="availability" type="text" class="caretaker-field-input" placeholder="Weekdays, 9 AM – 5 PM" required>
+          </label>
+        </div>
+
+        <label class="caretaker-field-block" style="margin-top:1rem;">
+          About your caregiving experience *
+          <textarea name="about" rows="4" class="caretaker-field-textarea" placeholder="Describe your background and the compassionate care you provide." required></textarea>
+        </label>
+      </section>
+
+      <!-- Section 3: Photos and Identification -->
+      <section class="caretaker-form-section">
+        <h2 class="caretaker-section-title">3. Identification</h2>
+        <div class="caretaker-two-col-grid">
+          <label class="caretaker-field-block">
+            ID document type *
+            <select name="idType" class="caretaker-field-input" required>
+              <option value="">Select ID type</option>
+              <option value="Government ID">Government ID (Aadhaar / Voter ID)</option>
+              <option value="Passport">Passport</option>
+              <option value="Driving Licence">Driving Licence</option>
+            </select>
+          </label>
+
+          <label class="caretaker-field-block">
+            Years in profession *
+            <input name="professionYears" type="number" min="1" max="50" class="caretaker-field-input" value="5" required>
+          </label>
+        </div>
+      </section>
+
+      <p id="caretaker-error-alert" class="caretaker-error-alert" style="display:none;"></p>
+
+      <div>
+        <button id="caretaker-submit-btn" type="submit" class="caretaker-submit-btn">
+          Submit Application
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <p style="margin-top:1rem; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+          Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Platform</h3>
+        <ul class="footer-links-list">
+          <li><a href="find.html">Find a Caretaker</a></li>
+          <li><a href="caretaker.html">Become a Caretaker</a></li>
+          <li><a href="index.html#how">How It Works</a></li>
+          <li><a href="index.html#emergency">Emergency Care</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links-list">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="index.html#safety">Safety</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Account</h3>
+        <ul class="footer-links-list">
+          <li><a href="dashboard.html">User Dashboard</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2026 CareSure · Pure HTML, CSS & JavaScript</p>
+      <p>Data stored in local JSON files</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+  <script src="scripts/caretaker.js"></script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - ABOUT US PAGE (PURE HTML)                               -->
+  <!--  Code for this page: Brand story, purpose, mission, and guiding      -->
+  <!--  principles, fully linked to the rest of the application.            -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us · CareSure</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/about.css">
+</head>
+<body class="about-page-container">
+
+  <!-- ==================================================================== -->
+  <!-- 1. NAVIGATION BAR                                                    -->
+  <!-- ==================================================================== -->
+  <header class="navbar-header">
+    <div class="navbar-container">
+      <a href="index.html" class="logo-brand">
+        <span class="logo-icon-box">🤝</span>
+        <span>Care<span class="highlight">Sure</span></span>
+      </a>
+
+      <nav class="nav-links-desktop">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link" style="color:var(--primary); font-weight:700;">About</a>
+        <a href="find.html" class="nav-link">Find Caretaker</a>
+        <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+        <a href="index.html#how" class="nav-link">How It Works</a>
+        <a href="index.html#safety" class="nav-link">Safety</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+
+      <div id="desktop-auth-actions" class="nav-actions-desktop">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="signup.html" class="btn btn-outline">Sign Up</a>
+        <a href="find.html" class="btn btn-primary">Find a Caretaker</a>
+      </div>
+
+      <button id="hamburger-btn" class="hamburger-btn" aria-label="Toggle menu">☰</button>
+    </div>
+
+    <div id="mobile-drawer" class="mobile-drawer">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link" style="color:var(--primary); font-weight:700;">About</a>
+      <a href="find.html" class="nav-link">Find Caretaker</a>
+      <a href="caretaker.html" class="nav-link">Become a Caretaker</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+      <div id="mobile-auth-actions" style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+        <a href="login.html" class="btn btn-outline" style="flex:1; text-align:center;">Login</a>
+        <a href="signup.html" class="btn btn-outline" style="flex:1; text-align:center;">Sign Up</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================================================================== -->
+    <!-- 2. HERO BANNER: Mission and core vision statement                  -->
+    <!-- ================================================================== -->
+    <section class="about-hero-section">
+      <div class="about-hero-container">
+        <span class="about-hero-badge">🤝 ABOUT CARESURE</span>
+        <h1 class="about-hero-title">
+          Trusted care should be easier to <span class="about-hero-title-highlight">find.</span>
+        </h1>
+        <p class="about-hero-desc">
+          CareSure connects families with nearby caretakers, bringing profiles, availability, and care options together in one place.
+        </p>
+
+        <!-- Call-to-action buttons -->
+        <div class="about-hero-actions">
+          <a class="about-btn-primary" href="find.html">Explore caretakers</a>
+          <a class="about-btn-secondary" href="contact.html">Contact form</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 3. PURPOSE & VALUE PROPOSITION                                     -->
+    <!-- ================================================================== -->
+    <section class="about-purpose-grid">
+      <!-- Purpose Narrative -->
+      <div style="display:flex; flex-direction:column; justify-content:center;">
+        <p class="about-purpose-label">OUR PURPOSE</p>
+        <h2 class="about-purpose-heading">
+          Helping families make care decisions with more confidence.
+        </h2>
+        <p class="about-purpose-text">
+          Finding dependable care for a parent, a patient, or a child can take time and trust. CareSure brings practical details into view—care types, experience, reviews, location, and availability—so families can compare options and start a conversation.
+        </p>
+        <p class="about-purpose-text">
+          Caretakers can also share their skills and connect with families looking for help in their community. We’re building a more approachable way to find and offer care.
+        </p>
+      </div>
+
+      <!-- Graphic Badge Element -->
+      <div class="about-visual-box">
+        <div class="about-visual-glow"></div>
+        <div class="about-visual-circle-outer">
+          <div class="about-visual-circle-inner">
+            <span style="font-size:3.5rem;">🤝</span>
+          </div>
+          <span class="about-visual-badge-top">🛡️ Verified</span>
+          <span class="about-visual-badge-bottom">📍 Local</span>
+        </div>
+        <p class="about-visual-caption">CARE THAT FEELS CLOSER</p>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- 4. GUIDING PRINCIPLES SECTION                                      -->
+    <!-- ================================================================== -->
+    <section class="about-principles-section">
+      <div class="about-principles-container">
+        <div>
+          <p class="about-purpose-label">WHAT GUIDES US</p>
+          <h2 class="about-purpose-heading">A thoughtful place to begin.</h2>
+        </div>
+
+        <div class="about-principles-grid">
+          <!-- Principle 1 -->
+          <article class="about-principle-card">
+            <span class="about-principle-icon-bubble">🛡️</span>
+            <h3 class="about-principle-title">Safety comes first</h3>
+            <p class="about-principle-text">
+              Profiles in this prototype are not verified, and example reviews are illustrative.
+            </p>
+          </article>
+
+          <!-- Principle 2 -->
+          <article class="about-principle-card">
+            <span class="about-principle-icon-bubble">❤️</span>
+            <h3 class="about-principle-title">Care is personal</h3>
+            <p class="about-principle-text">
+              Every family and caretaker is different. We make it easier to compare support and find a good fit.
+            </p>
+          </article>
+
+          <!-- Principle 3 -->
+          <article class="about-principle-card">
+            <span class="about-principle-icon-bubble">👥</span>
+            <h3 class="about-principle-title">Communities matter</h3>
+            <p class="about-principle-text">
+              Care works best close to home. CareSure helps families discover local support in their community.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- 5. GLOBAL FOOTER                                                     -->
+  <!-- ==================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div>
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <p style="margin-top:1rem; font-size:0.875rem; color:var(--text-muted); line-height:1.6;">
+          Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Platform</h3>
+        <ul class="footer-links-list">
+          <li><a href="find.html">Find a Caretaker</a></li>
+          <li><a href="caretaker.html">Become a Caretaker</a></li>
+          <li><a href="index.html#how">How It Works</a></li>
+          <li><a href="index.html#emergency">Emergency Care</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links-list">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="index.html#safety">Safety</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-col-title">Account</h3>
+        <ul class="footer-links-list">
+          <li><a href="dashboard.html">User Dashboard</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="signup.html">Create Account</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom-bar">
+      <p>© 2026 CareSure · Pure HTML, CSS & JavaScript</p>
+      <p>Data stored in local JSON files</p>
+    </div>
+  </footer>
+
+  <script src="scripts/main.js"></script>
+</body>
+</html>

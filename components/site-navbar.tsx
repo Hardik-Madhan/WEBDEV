@@ -1,11 +1,11 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { HeartHandshake, Menu, X } from "lucide-react"
+import { HeartHandshake, Menu, X, User as UserIcon } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-const navLinks = [
+const baseNavLinks = [
   { label: "Home", href: "/#home" },
   { label: "About", href: "/about" },
   { label: "Find Caretaker", href: "/find" },
@@ -31,6 +31,26 @@ export function Logo({ className }: { className?: string }) {
 export function SiteNavbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null)
+
+  useEffect(() => {
+    fetch("/api/account")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.user) setUser(d.user)
+      })
+      .catch(() => {})
+  }, [])
+
+  async function handleLogout() {
+    await fetch("/api/account", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    })
+    setUser(null)
+    window.location.href = "/"
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -45,6 +65,10 @@ export function SiteNavbar() {
       document.body.style.overflow = ""
     }
   }, [open])
+
+  const navLinks = user
+    ? [...baseNavLinks, { label: "Dashboard", href: "/dashboard" }]
+    : baseNavLinks
 
   return (
     <header
@@ -76,18 +100,38 @@ export function SiteNavbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            href="/login"
-            className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-          >
-            Login
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
-          >
-            Sign Up
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                <UserIcon className="size-4 text-primary" />
+                <span>Dashboard ({user.name.split(" ")[0]})</span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
           <Link
             href="/find"
             className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/30 transition-all hover:bg-primary/90 active:translate-y-px"
@@ -123,22 +167,43 @@ export function SiteNavbar() {
               {l.label}
             </Link>
           ))}
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
-            >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setOpen(false)}
-              className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
-            >
-              Sign Up
-            </Link>
-          </div>
+          {user ? (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={() => {
+                  setOpen(false)
+                  handleLogout()
+                }}
+                className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-muted-foreground hover:text-foreground"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="rounded-xl border border-border px-4 py-3 text-center font-semibold text-foreground"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
           <Link
             href="/find"
             onClick={() => setOpen(false)}

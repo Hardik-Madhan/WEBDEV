@@ -1,0 +1,245 @@
+/* ========================================================================== */
+/*  CARESURE - BECOME A CARETAKER PAGE STYLESHEET (CSS)                        */
+/*  File: app/caretaker/caretaker.css                                         */
+/*  Purpose: Separate CSS styling rules for the Caretaker Application form    */
+/* ========================================================================== */
+
+.caretaker-page-container {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.caretaker-main-content {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 3rem 1rem;
+}
+
+@media (min-width: 640px) {
+  .caretaker-main-content {
+    padding: 4rem 1.5rem;
+  }
+}
+
+.caretaker-hero-badge {
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--primary);
+}
+
+.caretaker-hero-title {
+  margin-top: 0.5rem;
+  font-size: 1.875rem;
+  font-weight: 800;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .caretaker-hero-title {
+    font-size: 2.25rem;
+  }
+}
+
+.caretaker-hero-desc {
+  margin-top: 0.75rem;
+  max-width: 42rem;
+  font-size: 1rem;
+  color: var(--muted-foreground);
+}
+
+.caretaker-warning-box {
+  margin-top: 1.25rem;
+  border-radius: 0.75rem;
+  background-color: #fef3c7;
+  padding: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: #78350f;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Success Confirmation Box & Auth Prompt                                     */
+/* -------------------------------------------------------------------------- */
+.caretaker-card-box {
+  margin-top: 2rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  padding: 2rem;
+}
+
+.caretaker-card-title {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.caretaker-card-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+}
+
+.caretaker-link-primary {
+  margin-top: 1.5rem;
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.caretaker-link-primary:hover {
+  text-decoration: underline;
+}
+
+.caretaker-auth-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.caretaker-btn-signup {
+  border-radius: 0.75rem;
+  background-color: var(--primary);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-foreground);
+  text-decoration: none;
+}
+
+.caretaker-btn-login {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Form Sections and Field Styling                                            */
+/* -------------------------------------------------------------------------- */
+.caretaker-form {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.caretaker-form-section {
+  border-radius: 1.5rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .caretaker-form-section {
+    padding: 2rem;
+  }
+}
+
+.caretaker-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.caretaker-section-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.caretaker-two-col-grid {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .caretaker-two-col-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.caretaker-field-block {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.caretaker-field-input {
+  margin-top: 0.375rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.caretaker-field-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px oklch(0.55 0.15 253 / 0.2);
+}
+
+.caretaker-field-textarea {
+  margin-top: 0.375rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background-color: var(--background);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  min-height: 6rem;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.caretaker-field-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px oklch(0.55 0.15 253 / 0.2);
+}
+
+.caretaker-error-alert {
+  font-size: 0.875rem;
+  color: var(--destructive);
+}
+
+.caretaker-submit-btn {
+  border-radius: 0.75rem;
+  background-color: var(--primary);
+  padding: 0.75rem 1.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary-foreground);
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s ease;
+}
+
+.caretaker-submit-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.caretaker-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

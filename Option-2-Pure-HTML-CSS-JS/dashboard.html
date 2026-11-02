@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ==================================================================== -->
+  <!--  CARESURE - USER DASHBOARD (PURE HTML)                              -->
+  <!--  Code for this page: Displays bookings loaded from data/bookings.json, -->
+  <!--  manages user profile settings, and provides full account control.   -->
+  <!-- ==================================================================== -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Dashboard · CareSure</title>
+
+  <!-- Separate CSS stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/dashboard.css">
+</head>
+<body class="dashboard-page-container">
+
+  <!-- Unauthenticated Fallback View -->
+  <div id="dash-unauth-box" style="display:none; max-width:500px; margin:5rem auto; padding:2rem; background:#fff; border-radius:var(--radius-xl); border:1px solid var(--border-color); text-align:center;">
+    <h1 style="font-size:1.75rem; font-weight:800;">Your care dashboard</h1>
+    <p style="margin-top:0.5rem; color:var(--text-muted); font-size:0.875rem;">Please log in to review your bookings and profile details.</p>
+    <div style="margin-top:1.5rem; display:flex; gap:0.75rem; justify-content:center;">
+      <a href="login.html" class="btn btn-primary">Log in</a>
+      <a href="signup.html" class="btn btn-outline">Create account</a>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div id="dash-loading" style="padding:4rem; text-align:center; color:var(--text-muted); font-size:1rem;">
+    Loading your dashboard from local JSON…
+  </div>
+
+  <!-- Main Authenticated Dashboard Shell -->
+  <div id="dash-main-content" style="display:none;">
+    <!-- Topbar Navigation -->
+    <header class="dashboard-topbar">
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <a href="index.html" class="logo-brand">
+          <span class="logo-icon-box">🤝</span>
+          <span>Care<span class="highlight">Sure</span></span>
+        </a>
+        <span style="background:var(--secondary); color:var(--secondary-text); font-size:0.75rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:9999px;">
+          Family Account
+        </span>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <div style="text-align:right;">
+          <p id="dash-user-name" style="font-weight:700; font-size:0.875rem;">User</p>
+          <p id="dash-user-sub" style="font-size:0.75rem; color:var(--text-muted);">Location</p>
+        </div>
+        <button id="dash-logout-btn" class="btn btn-outline" style="padding:0.4rem 0.85rem; font-size:0.8rem;">
+          Log out
+        </button>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <!-- Sidebar Navigation -->
+      <aside>
+        <nav class="dashboard-nav">
+          <button class="dash-nav-item active" data-tab="Overview">📊 Overview</button>
+          <button class="dash-nav-item" data-tab="Bookings">📅 Booking Requests</button>
+          <button class="dash-nav-item" data-tab="Saved">❤️ Saved Caretakers</button>
+          <button class="dash-nav-item" data-tab="Messages">💬 Messages</button>
+          <button class="dash-nav-item" data-tab="Payments">💳 Payments</button>
+          <button class="dash-nav-item" data-tab="Settings">⚙️ Profile Settings</button>
+        </nav>
+      </aside>
+
+      <!-- Main Panels Content Area -->
+      <main>
+        <!-- SECTION 1: Overview Tab -->
+        <section id="section-overview" class="dash-section-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <h1 id="dash-welcome-heading" style="font-size:1.75rem; font-weight:800;">Welcome back</h1>
+              <p style="color:var(--text-muted); font-size:0.875rem;">Your care activity at a glance.</p>
+            </div>
+            <a href="find.html" class="btn btn-primary">Find a Caretaker ➔</a>
+          </div>
+
+          <!-- Summary Stat Cards -->
+          <div class="dash-stats-grid">
+            <div class="dash-stat-card">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Bookings Saved</span>
+              <p id="stat-bookings-count" class="dash-stat-val">0</p>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Stored in data/bookings.json</p>
+            </div>
+
+            <div class="dash-stat-card">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Shortlisted Caregivers</span>
+              <p id="stat-saved-count" class="dash-stat-val">0</p>
+              <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">Your personal favorites</p>
+            </div>
+          </div>
+
+          <!-- Overview Bookings Preview -->
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">Your Recent Bookings</h2>
+            <div id="overview-bookings-preview"></div>
+          </div>
+        </section>
+
+        <!-- SECTION 2: Bookings Tab (Full Records List) -->
+        <section id="section-bookings" class="dash-section-panel" style="display:none;">
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">All Care Requests</h2>
+            <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
+              Loaded directly from your local <code>data/bookings.json</code> file.
+            </p>
+            <div id="bookings-records-container"></div>
+          </div>
+        </section>
+
+        <!-- SECTION 3: Saved Caretakers Tab -->
+        <section id="section-saved" class="dash-section-panel" style="display:none;">
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">Your Shortlist</h2>
+            <p style="font-size:0.875rem; color:var(--text-muted);">
+              Caretakers you have bookmarked will appear here.
+            </p>
+            <a href="find.html" class="btn btn-outline" style="margin-top:1rem;">Explore Caretakers →</a>
+          </div>
+        </section>
+
+        <!-- SECTION 4: Messages Tab -->
+        <section id="section-messages" class="dash-section-panel" style="display:none;">
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">Messages</h2>
+            <p style="font-size:0.875rem; color:var(--text-muted);">
+              Direct messaging will connect in future updates. No active conversations.
+            </p>
+          </div>
+        </section>
+
+        <!-- SECTION 5: Payments Tab -->
+        <section id="section-payments" class="dash-section-panel" style="display:none;">
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">Payment Activity</h2>
+            <p style="font-size:0.875rem; color:var(--text-muted);">
+              Payments are simulated in this prototype. No charges have been made.
+            </p>
+          </div>
+        </section>
+
+        <!-- SECTION 6: Profile Settings Form (Updates data/users.json) -->
+        <section id="section-settings" class="dash-section-panel" style="display:none;">
+          <div class="dash-panel">
+            <h2 class="dash-panel-title">Your Profile Details</h2>
+            <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem;">
+              Account Email: <strong id="setting-email-display">user@example.com</strong>
+            </p>
+
+            <form id="profile-settings-form" style="max-width:500px; display:flex; flex-direction:column; gap:1rem;">
+              <div>
+                <label style="font-size:0.875rem; font-weight:700; display:block; margin-bottom:0.35rem;">Full name</label>
+                <input id="setting-name" type="text" class="hero-input-field" style="width:100%;" required>
+              </div>
+
+              <div>
+                <label style="font-size:0.875rem; font-weight:700; display:block; margin-bottom:0.35rem;">Phone number</label>
+                <input id="setting-phone" type="tel" class="hero-input-field" style="width:100%;" required>
+              </div>
+
+              <div>
+                <label style="font-size:0.875rem; font-weight:700; display:block; margin-bottom:0.35rem;">Area and city</label>
+                <input id="setting-location" type="text" class="hero-input-field" style="width:100%;" required>
+              </div>
+
+              <div>
+                <label style="font-size:0.875rem; font-weight:700; display:block; margin-bottom:0.35rem;">Care needs</label>
+                <textarea id="setting-care-needs" rows="3" class="hero-input-field" style="width:100%; resize:none;"></textarea>
+              </div>
+
+              <p id="settings-feedback" style="font-size:0.875rem; font-weight:600;"></p>
+
+              <div>
+                <button type="submit" class="btn btn-primary">Save Changes to users.json</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="scripts/dashboard.js"></script>
+</body>
+</html>
