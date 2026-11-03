@@ -18,9 +18,12 @@ const baseNavLinks = [
 export function Logo({ className }: { className?: string }) {
   return (
     <Link href="/" className={cn("flex items-center gap-2", className)}>
-      <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/30">
-        <HeartHandshake className="size-5" />
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/logo.svg"
+        alt="CareSure Logo"
+        className="size-9 rounded-full object-contain shadow-sm"
+      />
       <span className="text-xl font-extrabold tracking-tight text-foreground">
         Care<span className="text-primary">Sure</span>
       </span>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Circular Blue Base -->
+  <circle cx="50" cy="50" r="48" fill="#1e70bf"/>
+  
+  <!-- Handshake Heart Icon -->
+  <g stroke="#ffffff" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Outer Heart Silhouette formed by wrists and hands -->
+    <!-- Left lobe down to bottom point -->
+    <path d="M 50 37 C 45 30 38 26 31 26 C 21 26 14 34 14 43 C 14 53 23 62 35 71 L 50 82" />
+    <!-- Right lobe down to right grip -->
+    <path d="M 50 37 C 55 30 62 26 69 26 C 79 26 86 34 86 43 C 86 51 81 57 74 63" />
+    
+    <!-- Left Hand / Wrist Inner Line -->
+    <path d="M 50 37 L 42 48" />
+    
+    <!-- Right Hand Clasping Fingers wrapping over left hand -->
+    <path d="M 44 46 C 48 42 55 41 60 44 C 64 46.5 65 51 63 55 C 60 59 55 60 48 62" />
+    <path d="M 64 57 C 67 61 70 63 74 63" />
+    
+    <!-- Bottom clasp and finish to tip -->
+    <path d="M 49 71 C 53 69 57 69 60 67" />
+    <path d="M 50 82 L 56 76" />
+  </g>
+</svg>
