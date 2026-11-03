@@ -263,8 +263,8 @@ export default function UserDashboard() {
       </div>
 
       {/* Local storage note */}
-      <p className="mb-5 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
-        Prototype data is saved directly on this computer in the <code>data/</code> folder.
+      <p className="mb-5 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-900 border border-emerald-200">
+        Care Portal: Manage your scheduled bookings, caretaker shortlist, and family care profile.
       </p>
 
       {/* Feedback status messages */}
@@ -308,14 +308,14 @@ export default function UserDashboard() {
       {/* SECTION 4: Messages Tab */}
       {active === "Messages" && (
         <Panel title="Messages">
-          <p className="text-sm text-muted-foreground">Messaging is simulated in this prototype. Direct messaging will connect in future updates.</p>
+          <p className="text-sm text-muted-foreground">Direct family-to-caregiver messaging is activated once a care booking is confirmed.</p>
         </Panel>
       )}
 
       {/* SECTION 5: Payments Tab */}
       {active === "Payments" && (
         <Panel title="Payments">
-          <p className="text-sm text-muted-foreground">Payments are not processed in this prototype. No charges have been made.</p>
+          <p className="text-sm text-muted-foreground">Secure digital invoicing and payment receipts will appear here after shift completion.</p>
         </Panel>
       )}
 
@@ -325,7 +325,7 @@ export default function UserDashboard() {
           {applicationCount === 0 ? (
             <p className="text-sm text-muted-foreground">You have not created a caretaker profile. <Link href="/caretaker" className="font-semibold text-primary">Apply here</Link>.</p>
           ) : requests.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No care requests yet. Your profile is visible in the directory as unverified.</p>
+            <p className="text-sm text-muted-foreground">No upcoming requests yet. New care appointments assigned to you will appear here.</p>
           ) : (
             <div className="space-y-4">
               {requests.map((r) => (

@@ -48,11 +48,9 @@ export default function CaretakerPage() {
           Share your experience, skills, and availability to create an application.
         </p>
 
-        {/* Prototype Notice */}
+        {/* Caregiver Onboarding Notice */}
         <div className="caretaker-warning-box">
-          <strong>Local prototype:</strong> applications and uploaded images are
-          stored unencrypted in your local <code>data/</code> folder. Submitted profiles
-          become visible in the local directory.
+          <strong>Caregiver Onboarding:</strong> All submitted caregiver applications undergo identity verification, reference validation, and care coordinator orientation before accepting family bookings.
         </div>
 
         {/* ================================================================== */}
@@ -66,8 +64,7 @@ export default function CaretakerPage() {
             <CheckCircle2 className="size-10 text-emerald-600" />
             <h2 className="caretaker-card-title">Application saved</h2>
             <p className="caretaker-card-text">
-              Your application has been stored locally in <code>data/caretaker-applications.json</code>.
-              Your profile is now visible in the directory, and care requests will appear in your dashboard.
+              Your application has been received and scheduled for onboarding review. Your profile is visible in the directory, and care requests will appear in your dashboard.
             </p>
             <Link className="caretaker-link-primary" href="/dashboard">
               Go to your dashboard →

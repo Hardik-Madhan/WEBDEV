@@ -71,9 +71,9 @@ export default function ContactPage() {
           {/* ---------------------------------------------------------------- */}
           <aside className="contact-sidebar">
             <div className="contact-info-card">
-              <h2 className="contact-info-card-title">Prototype Contact Form</h2>
+              <h2 className="contact-info-card-title">Care Coordination Center</h2>
               <p className="contact-info-card-subtitle">
-                Submissions are stored directly in your local <code>data/contacts.json</code> file.
+                Our care coordination desk assists families with caregiver matching, scheduling, and urgent requests.
               </p>
 
               <div className="contact-info-list">

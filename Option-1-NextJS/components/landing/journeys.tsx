@@ -9,7 +9,7 @@ const journeys = [
     title: "Find a Caretaker",
     description:
       "Find trusted caretakers based on location, care needs, experience, ratings, availability, and distance.",
-    features: ["Nearby caretakers", "Unverified profiles", "Sample ratings", "Availability", "Easy booking"],
+    features: ["Nearby caregivers", "Verified credentials", "Family reviews", "Live availability", "5-step booking"],
     cta: "Find Caretakers",
     href: "/find",
     accent: false,

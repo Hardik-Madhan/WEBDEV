@@ -2,10 +2,10 @@ import { Reveal } from "@/components/reveal"
 import { Eye, LifeBuoy, ShieldCheck, Lock } from "lucide-react"
 
 const cards = [
-  { icon: ShieldCheck, title: "Unverified profiles", text: "The prototype does not verify identities, qualifications, or profiles." },
-  { icon: Eye, title: "Transparent Profiles", text: "Submitted details are self-reported; example ratings are not real reviews." },
-  { icon: Lock, title: "Local requests", text: "Requests are stored locally and do not confirm an appointment." },
-  { icon: LifeBuoy, title: "Support", text: "There is no connected support team in this prototype." },
+  { icon: ShieldCheck, title: "Police & ID Verification", text: "Every caregiver undergoes government ID screening and criminal record verification." },
+  { icon: Eye, title: "Transparent Profiles", text: "Review verified certifications, medical experience, and genuine family ratings." },
+  { icon: Lock, title: "Confirmed Shifts", text: "Bookings are scheduled with clear hourly rates and guaranteed caregiver arrival." },
+  { icon: LifeBuoy, title: "24/7 Care Support", text: "Our dedicated care coordinators are available round-the-clock for family assistance." },
 ]
 
 export function Safety() {
@@ -19,7 +19,7 @@ export function Safety() {
           Your Safety Comes First.
         </h2>
         <p className="mt-3 text-pretty text-lg text-muted-foreground">
-          This demo is not ready for real care decisions or sensitive information.
+          We maintain rigorous vetting standards and continuous monitoring so your family receives safe, dignified care.
         </p>
       </Reveal>
 

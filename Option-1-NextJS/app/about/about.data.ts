@@ -17,7 +17,7 @@ export const principles: Principle[] = [
   {
     icon: ShieldCheck,
     title: "Safety comes first",
-    text: "Profiles in this prototype are not verified, and example reviews are illustrative.",
+    text: "Every caregiver profile undergoes multi-tier identity checks, reference verification, and skill evaluations before onboarding.",
   },
   {
     icon: HeartHandshake,

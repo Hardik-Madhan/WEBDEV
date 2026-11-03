@@ -7,7 +7,11 @@ import { currentUser, readRecords } from "@/lib/account-store"
 
 export const runtime = "nodejs"
 
-const times = new Set(["08:00 AM", "10:00 AM", "12:00 PM", "02:00 PM", "04:00 PM", "06:00 PM"])
+const times = new Set([
+  "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", 
+  "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", 
+  "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"
+])
 
 export async function GET() {
   const user = await currentUser()
@@ -34,6 +38,10 @@ export async function POST(request: Request) {
   const date = typeof values.date === "string" ? values.date : ""
   const time = typeof values.time === "string" ? values.time : ""
   const address = typeof values.address === "string" ? values.address.trim() : ""
+  const durationHours = typeof values.durationHours === "number" && values.durationHours >= 1 && values.durationHours <= 24
+    ? values.durationHours
+    : Number(values.durationHours) || 4
+
   const caretaker = [...caretakers, ...(await applications()).map(profile)].find((item) => item.id === caretakerId)
   const selectedDate = new Date(date)
 
@@ -41,10 +49,12 @@ export async function POST(request: Request) {
   if (!date || Number.isNaN(selectedDate.getTime()) || selectedDate.toISOString().slice(0, 10) < new Date().toISOString().slice(0, 10)) {
     return NextResponse.json({ error: "Please choose today or a future date." }, { status: 422 })
   }
-  if (!times.has(time)) return NextResponse.json({ error: "Please choose an available time." }, { status: 422 })
+  if (!times.has(time)) return NextResponse.json({ error: "Please choose an available time slot." }, { status: 422 })
   if (address.length < 5 || address.length > 500) {
     return NextResponse.json({ error: "Address must be between 5 and 500 characters." }, { status: 422 })
   }
+
+  const estimatedTotal = caretaker.price * durationHours
 
   const booking = {
     userId: user.id,
@@ -59,8 +69,8 @@ export async function POST(request: Request) {
     time,
     address,
     hourlyRate: caretaker.price,
-    durationHours: 4,
-    estimatedTotal: caretaker.price * 4,
+    durationHours,
+    estimatedTotal,
     submittedAt: new Date().toISOString(),
   }
   try {

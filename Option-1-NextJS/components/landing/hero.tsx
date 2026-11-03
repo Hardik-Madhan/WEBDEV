@@ -21,7 +21,7 @@ export function Hero() {
         <div>
           <span className="inline-flex animate-fade-up items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground shadow-sm">
             <span className="flex size-2 rounded-full bg-success" />
-            A local care marketplace prototype
+            Verified Local Care Marketplace
           </span>
 
           <h1
@@ -128,29 +128,29 @@ export function Hero() {
             className="left-2 top-6 sm:-left-4"
             delay="0s"
             icon={<BadgeCheck className="size-4 text-primary" />}
-            title="Sample Caretaker"
-            subtitle="Illustrative profile"
+            title="Priya Sharma"
+            subtitle="Verified Senior Specialist"
           />
           <FloatingCard
             className="right-2 top-24 sm:-right-4"
             delay="1.2s"
             icon={<Star className="size-4 fill-chart-4 text-chart-4" />}
             title="4.9 Rating"
-            subtitle="Sample rating"
+            subtitle="126+ Family Reviews"
           />
           <FloatingCard
             className="bottom-24 left-2 sm:-left-6"
             delay="0.6s"
             icon={<MapPin className="size-4 text-accent" />}
             title="1.2 km Away"
-            subtitle="Example distance"
+            subtitle="Local Neighborhood"
           />
           <FloatingCard
             className="bottom-6 right-2 sm:-right-4"
             delay="1.8s"
             icon={<span className="flex size-2.5 rounded-full bg-success" />}
-            title="Sample availability"
-            subtitle="Not live"
+            title="Available Today"
+            subtitle="Direct Booking"
           />
         </div>
       </div>

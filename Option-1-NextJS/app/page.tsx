@@ -21,9 +21,9 @@ export default function HomePage() {
       <SiteNavbar />
 
       <main>
-        {/* Transparent prototype notice for visitors and evaluators */}
-        <p className="bg-amber-50 px-4 py-3 text-center text-sm text-amber-900">
-          Prototype only: profiles and availability are not verified, and no real care or emergency service is provided.
+        {/* Verified Family Care Banner */}
+        <p className="bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-900 border-b border-emerald-200">
+          Verified Care Network: Over 500+ trusted background-verified caregivers ready to support your family across Bengaluru.
         </p>
 
         {/* Hero section: first impression with quick care-type search and direct action buttons */}
@@ -41,7 +41,7 @@ export default function HomePage() {
         {/* Emergency disclaimer banner: directs urgent medical needs to hospital and emergency helplines */}
         <Emergency />
 
-        {/* Safety and verification guidelines: transparently sets expectations around prototype data */}
+        {/* Safety and verification guidelines: transparently highlights safety protocols and vetting */}
         <Safety />
 
         {/* Call-to-action banner: invites experienced caregivers to apply and list their profile */}

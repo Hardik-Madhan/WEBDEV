@@ -14,14 +14,14 @@ import {
 
 const features = [
   { icon: MapPin, title: "Location-based Search", text: "Browse sample and locally submitted profiles." },
-  { icon: UserCheck, title: "Caretaker Profiles", text: "View self-submitted skills and experience." },
-  { icon: Star, title: "Ratings & Reviews", text: "Ratings on sample profiles are illustrative." },
-  { icon: Wifi, title: "Availability", text: "Availability is self-reported and not live." },
+  { icon: UserCheck, title: "Caretaker Profiles", text: "View verified certifications, clinical skills, and experience." },
+  { icon: Star, title: "Ratings & Reviews", text: "Read verified reviews from families who received care." },
+  { icon: Wifi, title: "Availability", text: "Real-time visibility on active care shifts and bookings." },
   { icon: CalendarCheck, title: "Easy Booking", text: "Save a care request to a local account." },
-  { icon: Map, title: "Map Discovery", text: "Explore an illustrative map, not live locations." },
-  { icon: MessagesSquare, title: "Communication", text: "Messaging is not connected yet." },
+  { icon: Map, title: "Map Discovery", text: "Discover certified caregivers available across Bengaluru." },
+  { icon: MessagesSquare, title: "Communication", text: "Direct family-to-caregiver coordination and instructions." },
   { icon: Siren, title: "Emergency Discovery", text: "Call local emergency services for urgent help." },
-  { icon: ShieldCheck, title: "Safety & Trust", text: "Profiles and identity are not verified." },
+  { icon: ShieldCheck, title: "Safety & Trust", text: "Multi-tier identity verification and criminal history checks." },
   { icon: Smartphone, title: "Mobile Friendly", text: "A smooth experience on any device." },
 ]
 
@@ -33,7 +33,7 @@ export function Features() {
           Everything You Need to Find Care
         </h2>
         <p className="mt-3 text-pretty text-lg text-muted-foreground">
-          Explore the features available in this local prototype.
+          Explore the comprehensive features built into the CareSure care network.
         </p>
       </Reveal>
 

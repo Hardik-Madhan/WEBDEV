@@ -46,7 +46,7 @@ export function AccountForm({ mode }: { mode: AccountMode }) {
           </p>
 
           <p className="auth-warning-banner">
-            Prototype: information is stored locally in <code>data/users.json</code> on this computer.
+            Secure Family Access: Sign in to manage your appointments, caregiver messages, and care plans.
           </p>
 
           {/* ================================================================ */}

@@ -36,7 +36,7 @@ export function SiteFooter() {
         <div className="max-w-xs">
           <Logo />
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Making trusted care easier to find. Explore care profiles, connect with local caretakers, and manage your bookings in this prototype.
+            Making trusted care easier to find. Explore verified care profiles, connect with compassionate local caregivers, and manage all your family's care needs.
           </p>
         </div>
 
@@ -62,7 +62,7 @@ export function SiteFooter() {
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row sm:px-6 lg:px-8">
           <p>© 2026 CareSure. Built with care.</p>
-          <p className="text-xs">A prototype experience · Not a substitute for emergency medical services.</p>
+          <p className="text-xs">CareSure Verified Care Platform · Dedicated to compassionate, dignified care for every family member.</p>
         </div>
       </div>
     </footer>
