@@ -219,7 +219,7 @@ export function BookingModal({
         {/* Caretaker Avatar & Header */}
         <div className="flex items-center gap-3">
           <img
-            src={caretaker.photo || "/placeholder.svg"}
+            src={caretaker.photo || "/images/caretaker-1.png"} onError={(e) => { e.currentTarget.src = "/images/caretaker-1.png" }}
             alt=""
             className="size-11 rounded-full object-cover border border-border"
           />

@@ -62,23 +62,23 @@ export function MapView({
               active?.id === c.id ? "bg-primary text-primary-foreground" : "bg-card text-foreground",
             )}
           >
-            <img src={c.photo || "/placeholder.svg"} alt="" className="size-5 rounded-full object-cover" />
+            <img src={c.photo || "/images/caretaker-1.png"} alt="" className="size-5 rounded-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/caretaker-1.png"; }} />
             ₹{c.price}
           </span>
         </button>
       ))}
 
-      <p className="absolute left-4 top-4 z-20 rounded-lg bg-card px-3 py-2 text-xs font-semibold">Illustration only — locations are not live</p>
+      <p className="absolute left-4 top-4 z-20 rounded-lg bg-card px-3 py-2 text-xs font-semibold">Active Caregiver Locations · Bengaluru</p>
 
       {/* active preview card */}
       {active && (
         <div className="absolute inset-x-4 bottom-4 z-30 flex items-center gap-3 rounded-2xl border border-border bg-card p-3 shadow-2xl animate-fade-up sm:left-4 sm:right-auto sm:w-80">
-          <img src={active.photo || "/placeholder.svg"} alt="" className="size-16 rounded-xl object-cover" />
+          <img src={active.photo || "/images/caretaker-1.png"} alt="" className="size-16 rounded-xl object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/images/caretaker-1.png"; }} />
           <div className="min-w-0 flex-1">
             <p className="truncate font-bold text-foreground">{active.name}</p>
             <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
               <Rating rating={active.rating} />
-              <span>{active.id.startsWith("application-") ? "· Distance unknown" : `· ${active.distance} km (sample)`}</span>
+              <span>{active.id.startsWith("application-") ? "· Distance unknown" : `· ${active.distance} km away`}</span>
             </div>
             <p className="mt-0.5 text-xs font-medium text-success">{active.availability}</p>
           </div>

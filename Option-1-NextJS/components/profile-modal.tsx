@@ -45,7 +45,7 @@ export function ProfileModal({
           <div className="size-28 shrink-0 overflow-hidden rounded-3xl border-4 border-card bg-muted shadow-lg">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={caretaker.photo || "/placeholder.svg"}
+              src={caretaker.photo || "/images/caretaker-1.png"} onError={(e) => { e.currentTarget.src = "/images/caretaker-1.png" }}
               alt={`Portrait of ${caretaker.name}`}
               className="size-full object-cover"
             />

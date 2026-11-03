@@ -19,7 +19,7 @@ export function CaretakerCard({ caretaker, onView, onBook, onSave, saved }: Prop
         <div className="relative size-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={caretaker.photo || "/placeholder.svg"}
+            src={caretaker.photo || "/images/caretaker-1.png"} onError={(e) => { e.currentTarget.src = "/images/caretaker-1.png" }}
             alt={`Portrait of ${caretaker.name}`}
             className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
