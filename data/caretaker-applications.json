@@ -1,0 +1,17 @@
+[
+  {
+    "id": "app-caregiver-01",
+    "userId": "user-caregiver-01",
+    "name": "Sunita Patil",
+    "location": "Indiranagar, Bengaluru",
+    "experience": "7",
+    "careTypes": "Elderly Care, Patient Care",
+    "skills": "Medication, Mobility, Meal Prep, Vitals Check",
+    "languages": "English, Kannada, Hindi",
+    "availability": "Monday - Friday, 9:00 AM - 5:00 PM",
+    "about": "Certified nursing assistant with 7 years of hospital and elder care experience. Specializes in gentle mobility and medication administration.",
+    "price": "380",
+    "photoType": "image/png",
+    "submittedAt": "2026-11-02T14:20:00.000Z"
+  }
+]
