@@ -329,6 +329,7 @@ const initialCaretakers = [
 let allCaretakers = [...initialCaretakers]
 let currentFilters = {
   careType: "All",
+  locationQuery: "",
   maxDistance: 10,
   minRating: 0,
   minExperience: 0
@@ -374,6 +375,44 @@ async function loadRegisteredCaretakers() {
   } catch (err) {}
 }
 
+function syncFilterUI() {
+  // Sync care type pills
+  document.querySelectorAll(".care-type-pill").forEach((p) => {
+    if (p.dataset.value.toLowerCase() === currentFilters.careType.toLowerCase()) {
+      p.classList.add("active")
+    } else {
+      p.classList.remove("active")
+    }
+  })
+
+  // Sync search dropdown
+  const careSelect = document.getElementById("search-care-type")
+  if (careSelect) {
+    careSelect.value = currentFilters.careType === "All" ? "All" : currentFilters.careType
+  }
+
+  // Sync distance
+  const distanceSlider = document.getElementById("distance-slider")
+  const distanceLabel = document.getElementById("distance-label")
+  if (distanceSlider) distanceSlider.value = currentFilters.maxDistance
+  if (distanceLabel) distanceLabel.textContent = `Within ${currentFilters.maxDistance} km`
+
+  // Sync rating
+  document.querySelectorAll(".rating-pill").forEach((p) => {
+    if (Number(p.dataset.value) === currentFilters.minRating) {
+      p.classList.add("active")
+    } else {
+      p.classList.remove("active")
+    }
+  })
+
+  // Sync experience
+  const expSlider = document.getElementById("experience-slider")
+  const expLabel = document.getElementById("experience-label")
+  if (expSlider) expSlider.value = currentFilters.minExperience
+  if (expLabel) expLabel.textContent = `${currentFilters.minExperience}+ years`
+}
+
 function setupFilterControls() {
   // Care Type pills
   document.querySelectorAll(".care-type-pill").forEach((pill) => {
@@ -381,9 +420,36 @@ function setupFilterControls() {
       document.querySelectorAll(".care-type-pill").forEach((p) => p.classList.remove("active"))
       pill.classList.add("active")
       currentFilters.careType = pill.dataset.value
+      const careSelect = document.getElementById("search-care-type")
+      if (careSelect) careSelect.value = pill.dataset.value
       renderCaretakers()
     })
   })
+
+  // Care Type dropdown in search header
+  const careSelect = document.getElementById("search-care-type")
+  if (careSelect) {
+    careSelect.addEventListener("change", (e) => {
+      currentFilters.careType = e.target.value
+      document.querySelectorAll(".care-type-pill").forEach((p) => {
+        if (p.dataset.value.toLowerCase() === e.target.value.toLowerCase()) {
+          p.classList.add("active")
+        } else {
+          p.classList.remove("active")
+        }
+      })
+      renderCaretakers()
+    })
+  }
+
+  // Location search input
+  const locationInput = document.getElementById("search-location")
+  if (locationInput) {
+    locationInput.addEventListener("input", (e) => {
+      currentFilters.locationQuery = e.target.value.trim().toLowerCase()
+      renderCaretakers()
+    })
+  }
 
   // Distance range slider
   const distanceSlider = document.getElementById("distance-slider")
@@ -423,6 +489,8 @@ function setupFilterControls() {
     searchBtn.addEventListener("click", () => {
       const careSelect = document.getElementById("search-care-type")
       if (careSelect) currentFilters.careType = careSelect.value
+      const locInput = document.getElementById("search-location")
+      if (locInput) currentFilters.locationQuery = locInput.value.trim().toLowerCase()
       renderCaretakers()
     })
   }
@@ -460,12 +528,19 @@ function renderCaretakers() {
   // Filter Algorithm based on active criteria
   const filtered = allCaretakers.filter((c) => {
     const matchType =
+      !currentFilters.careType ||
       currentFilters.careType === "All" ||
-      c.careTypes.some((t) => t.toLowerCase() === currentFilters.careType.toLowerCase())
-    const matchDist = c.distance <= currentFilters.maxDistance
-    const matchRating = c.rating >= currentFilters.minRating
-    const matchExp = c.experience >= currentFilters.minExperience
-    return matchType && matchDist && matchRating && matchExp
+      (Array.isArray(c.careTypes) && c.careTypes.some((t) => t.toLowerCase() === currentFilters.careType.toLowerCase()))
+
+    const matchLocation =
+      !currentFilters.locationQuery ||
+      (c.location && c.location.toLowerCase().includes(currentFilters.locationQuery))
+
+    const matchDist = typeof c.distance === "number" ? c.distance <= currentFilters.maxDistance : true
+    const matchRating = typeof c.rating === "number" ? c.rating >= currentFilters.minRating : true
+    const matchExp = typeof c.experience === "number" ? c.experience >= currentFilters.minExperience : true
+
+    return matchType && matchLocation && matchDist && matchRating && matchExp
   })
 
   if (countBadge) countBadge.textContent = filtered.length
@@ -479,7 +554,10 @@ function renderCaretakers() {
       </div>
     `
     document.getElementById("reset-filters-btn")?.addEventListener("click", () => {
-      currentFilters = { careType: "All", maxDistance: 10, minRating: 0, minExperience: 0 }
+      currentFilters = { careType: "All", locationQuery: "", maxDistance: 10, minRating: 0, minExperience: 0 }
+      const locInput = document.getElementById("search-location")
+      if (locInput) locInput.value = ""
+      syncFilterUI()
       renderCaretakers()
     })
     return
