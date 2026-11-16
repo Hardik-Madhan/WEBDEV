@@ -326,7 +326,9 @@ const initialCaretakers = [
   }
 ]
 
-let allCaretakers = [...initialCaretakers]
+let allCaretakers = []
+let lastFiltered = []
+
 let currentFilters = {
   careType: "All",
   locationQuery: "",
@@ -342,7 +344,7 @@ let selectedBookingHours = 4
 let selectedBookingTime = ""
 let selectedBookingAddress = ""
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   // Check URL query parameters (e.g. find.html?care=Elderly+Care)
   const urlParams = new URLSearchParams(window.location.search)
   const careParam = urlParams.get("care")
@@ -352,8 +354,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (careSelect) careSelect.value = careParam
   }
 
-  // Load dynamically registered local caretaker applications from data/caretaker-applications.json
-  loadRegisteredCaretakers()
+  // Load caretakers directly from data/caretakers.json (our single source of truth)
+  await loadCaretakersFromJson()
 
   // Setup Event Listeners
   setupFilterControls()
@@ -364,15 +366,17 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCaretakers()
 })
 
-async function loadRegisteredCaretakers() {
+async function loadCaretakersFromJson() {
   try {
-    const res = await fetch("/api/caretaker")
-    const data = await res.json()
-    if (data.caretakers && data.caretakers.length > 0) {
-      allCaretakers = [...initialCaretakers, ...data.caretakers]
-      renderCaretakers()
+    const res = await fetch("data/caretakers.json")
+    if (res.ok) {
+      allCaretakers = await res.json()
+    } else {
+      allCaretakers = [...initialCaretakers]
     }
-  } catch (err) {}
+  } catch (err) {
+    allCaretakers = [...initialCaretakers]
+  }
 }
 
 function syncFilterUI() {
@@ -543,6 +547,7 @@ function renderCaretakers() {
     return matchType && matchLocation && matchDist && matchRating && matchExp
   })
 
+  lastFiltered = filtered
   if (countBadge) countBadge.textContent = filtered.length
 
   if (filtered.length === 0) {
@@ -579,7 +584,7 @@ function renderCaretakers() {
         <p class="caretaker-about">${c.about}</p>
 
         <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:1rem;">
-          ${c.skills.map(s => `<span style="font-size:0.75rem; background:var(--bg-main); border:1px solid var(--border-color); padding:2px 8px; border-radius:9999px;">${s}</span>`).join('')}
+          ${(c.skills || []).map(s => `<span style="font-size:0.75rem; background:var(--bg-main); border:1px solid var(--border-color); padding:2px 8px; border-radius:9999px;">${s}</span>`).join('')}
         </div>
 
         <div class="caretaker-card-actions">
@@ -600,7 +605,8 @@ function renderMapPins() {
   const mapCanvas = document.getElementById("map-canvas")
   if (!mapCanvas) return
 
-  mapCanvas.innerHTML = allCaretakers
+  const pinsData = lastFiltered.length > 0 ? lastFiltered : allCaretakers
+  mapCanvas.innerHTML = pinsData
     .map(
       (c) => `
       <div class="map-pin" style="left: ${c.map ? c.map.x : 50}%; top: ${c.map ? c.map.y : 50}%;" onclick="startBooking('${c.id}')">
