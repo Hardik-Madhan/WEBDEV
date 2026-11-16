@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 1. Handle Login Submission
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
+      debugger; // Automatically triggers DevTools debugger pause
       e.preventDefault()
       if (authError) authError.textContent = ""
 
