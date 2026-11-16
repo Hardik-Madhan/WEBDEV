@@ -1,44 +1,46 @@
-# Web Development Project - CareSure
-
-This project is divided into **two complete options** to satisfy different evaluation and presentation requirements:
-
----
-
-## 📁 Option 1: Modern Full-Stack (Next.js & TypeScript)
-Located in: **[`Option-1-NextJS/`](./Option-1-NextJS)**
-
-- **Architecture**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, and Node.js filesystem API.
-- **Separation of Concerns**: Each page has dedicated files:
-  - **CSS Stylesheet** (`*.css`)
-  - **JavaScript Logic & Validation** (`*.logic.ts`)
-  - **HTML Structure Component** (`page.tsx`)
-- **How to run**:
-  ```bash
-  cd Option-1-NextJS
-  npx.cmd pnpm dev
-  ```
-  Open: **`http://localhost:3000`**
+# CareSure - Caregiver Booking Platform
+A clean, modular web application clearly divided into **frontend** and **backend**.
 
 ---
 
-## 📁 Option 2: Pure HTML, Pure CSS, Pure JavaScript & JSON Database
-Located in: **[`Option-2-Pure-HTML-CSS-JS/`](./Option-2-Pure-HTML-CSS-JS)**
+## 📁 Repository Structure
 
-- **Architecture**: Traditional web development with 100% pure `.html`, `.css`, and `.js` files.
-- **Pages**:
-  - `index.html` (Homepage & Care Showcase)
-  - `about.html` (About Us & Guiding Principles)
-  - `find.html` (Caretaker Directory, Filter Sliders, List/Map View & 5-Step Booking Wizard)
-  - `contact.html` (Contact Us Form with Real-Time Input Validation)
-  - `caretaker.html` (Become a Caretaker Multi-Section Application with Photo Upload)
-  - `login.html` & `signup.html` (Authentication with Password Confirmation Check)
-  - `dashboard.html` (User Control Center with Bookings Records and Expandable Details)
-- **Styling**: Pure CSS stylesheets in [`styles/`](./Option-2-Pure-HTML-CSS-JS/styles).
-- **Interactivity**: Pure JavaScript modules in [`scripts/`](./Option-2-Pure-HTML-CSS-JS/scripts).
-- **Database**: Form submissions write directly to local JSON files in [`data/`](./Option-2-Pure-HTML-CSS-JS/data) (`contacts.json`, `users.json`, `bookings.json`, `sessions.json`, `caretaker-applications.json`).
-- **How to run**:
-  ```bash
-  cd Option-2-Pure-HTML-CSS-JS
-  node server.js
-  ```
-  Open: **`http://localhost:3000`**
+```text
+WEB DEV/
+├── frontend/                  # 🖥️ CLIENT-SIDE (HTML, CSS, JS)
+│   ├── index.html             # Homepage
+│   ├── find.html              # Find Caregivers & 5-Step Booking Modal
+│   ├── dashboard.html         # User Dashboard
+│   ├── caretaker.html         # Caregiver Application form
+│   ├── contact.html           # Emergency & Contact page
+│   ├── login.html & signup.html
+│   ├── styles/                # CSS Stylesheets (main.css, find.css, home.css, dashboard.css)
+│   ├── scripts/               # Client JavaScript (find.js, dashboard.js, auth.js, main.js)
+│   ├── images/                # Images, photos, and logo.svg
+│   └── data/                  # Client-side data copy
+│
+├── backend/                   # ⚙️ SERVER-SIDE (Node.js & JSON DB)
+│   ├── server.js              # Native Node.js REST API & static file server
+│   ├── package.json           # Backend runner
+│   └── data/                  # Local JSON Database
+│       ├── caretakers.json    # 8 Caretaker profiles
+│       ├── bookings.json      # Confirmed bookings
+│       ├── contacts.json      # Contact inquiries
+│       └── users.json         # User credentials & profiles
+│
+└── package.json               # Root launcher ("npm start")
+```
+
+---
+
+## 🚀 How to Run
+
+Open terminal in the root folder and run:
+```powershell
+node backend/server.js
+```
+or
+```powershell
+npm start
+```
+Then visit: **`http://localhost:3000`** in your browser.

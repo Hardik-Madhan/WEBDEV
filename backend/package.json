@@ -1,0 +1,12 @@
+{
+  "name": "caresure-backend",
+  "version": "1.0.0",
+  "description": "CareSure Backend Server and JSON Database API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["backend", "nodejs", "json-api"],
+  "author": "",
+  "license": "ISC"
+}
