@@ -328,6 +328,8 @@ const initialCaretakers = [
 
 let allCaretakers = []
 let lastFiltered = []
+let loggedInUser = null
+let authMode = "login"
 
 let currentFilters = {
   careType: "All",
@@ -343,6 +345,7 @@ let selectedBookingDate = ""
 let selectedBookingHours = 4
 let selectedBookingTime = ""
 let selectedBookingAddress = ""
+let lastSubmittedBooking = null
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Check URL query parameters (e.g. find.html?care=Elderly+Care)
@@ -354,12 +357,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (careSelect) careSelect.value = careParam
   }
 
+  // Check user authentication status from backend
+  await checkAuthStatus()
+
   // Load caretakers directly from data/caretakers.json (our single source of truth)
   await loadCaretakersFromJson()
 
   // Setup Event Listeners
   setupFilterControls()
-  setupViewToggle()
   setupBookingModal()
 
   // Initial render
@@ -500,29 +505,7 @@ function setupFilterControls() {
   }
 }
 
-function setupViewToggle() {
-  const listViewBtn = document.getElementById("list-view-btn")
-  const mapViewBtn = document.getElementById("map-view-btn")
-  const gridView = document.getElementById("caretakers-grid")
-  const mapCanvas = document.getElementById("map-canvas")
-
-  if (listViewBtn && mapViewBtn) {
-    listViewBtn.addEventListener("click", () => {
-      listViewBtn.classList.add("active")
-      mapViewBtn.classList.remove("active")
-      if (gridView) gridView.style.display = "grid"
-      if (mapCanvas) mapCanvas.classList.remove("active")
-    })
-
-    mapViewBtn.addEventListener("click", () => {
-      mapViewBtn.classList.add("active")
-      listViewBtn.classList.remove("active")
-      if (gridView) gridView.style.display = "none"
-      if (mapCanvas) mapCanvas.classList.add("active")
-      renderMapPins()
-    })
-  }
-}
+// Map view toggle removed as requested
 
 function renderCaretakers() {
   const grid = document.getElementById("caretakers-grid")
@@ -601,28 +584,82 @@ function renderCaretakers() {
     .join("")
 }
 
-function renderMapPins() {
-  const mapCanvas = document.getElementById("map-canvas")
-  if (!mapCanvas) return
+// ------------------------------------------------------------------------------
+// BOOKING MODAL & AUTHENTICATION LOGIC (Saves to data/bookings.json)
+// ------------------------------------------------------------------------------
 
-  const pinsData = lastFiltered.length > 0 ? lastFiltered : allCaretakers
-  mapCanvas.innerHTML = pinsData
-    .map(
-      (c) => `
-      <div class="map-pin" style="left: ${c.map ? c.map.x : 50}%; top: ${c.map ? c.map.y : 50}%;" onclick="startBooking('${c.id}')">
-        📍 ${c.name.split(" ")[0]} · ₹${c.price}
-      </div>
-    `
-    )
-    .join("")
+async function checkAuthStatus() {
+  try {
+    const res = await fetch("/api/account")
+    if (res.ok) {
+      const data = await res.json()
+      loggedInUser = data.user || null
+    } else {
+      loggedInUser = null
+    }
+  } catch (err) {
+    loggedInUser = null
+  }
+  return loggedInUser
 }
 
-// ------------------------------------------------------------------------------
-// 5-STEP BOOKING MODAL WIZARD LOGIC (Saves to data/bookings.json)
-// ------------------------------------------------------------------------------
+function getTodayIso() {
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function getTomorrowIso() {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function timeStrToMinutes(timeStr) {
+  if (!timeStr) return 0
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i)
+  if (!match) return 0
+  let h = parseInt(match[1], 10)
+  const m = parseInt(match[2], 10)
+  const ampm = match[3].toUpperCase()
+  if (ampm === "PM" && h < 12) h += 12
+  if (ampm === "AM" && h === 12) h = 0
+  return h * 60 + m
+}
+
+function getMinAllowedMinutesForToday() {
+  const now = new Date()
+  return now.getHours() * 60 + now.getMinutes() + 60
+}
+
+function getMinTimeStringForToday() {
+  const now = new Date()
+  const minTime = new Date(now.getTime() + 60 * 60 * 1000)
+  let h = minTime.getHours()
+  const m = String(minTime.getMinutes()).padStart(2, "0")
+  const ampm = h >= 12 ? "PM" : "AM"
+  if (h === 0) h = 12
+  else if (h > 12) h -= 12
+  return `${String(h).padStart(2, "0")}:${m} ${ampm}`
+}
+
+function isTimeSlotAvailable(timeStr, dateIso) {
+  const todayIso = getTodayIso()
+  if (dateIso !== todayIso) return true
+  return timeStrToMinutes(timeStr) >= getMinAllowedMinutesForToday()
+}
+
 function setupBookingModal() {
   const closeBtn = document.getElementById("booking-modal-close")
   const modal = document.getElementById("booking-modal")
+  const popup = document.getElementById("booking-confirm-popup")
+  const popupConfirmBtn = document.getElementById("popup-btn-confirm")
+  const popupCheckingBtn = document.getElementById("popup-btn-checking")
 
   if (closeBtn && modal) {
     closeBtn.addEventListener("click", () => {
@@ -641,24 +678,124 @@ function setupBookingModal() {
   if (backBtn) {
     backBtn.addEventListener("click", handleWizardBack)
   }
+
+  // Confirmation Popup Buttons
+  if (popupConfirmBtn) {
+    popupConfirmBtn.addEventListener("click", () => {
+      if (popup) popup.classList.remove("active")
+      confirmAndSubmitBooking()
+    })
+  }
+
+  if (popupCheckingBtn) {
+    popupCheckingBtn.addEventListener("click", () => {
+      if (popup) popup.classList.remove("active")
+    })
+  }
 }
 
-window.startBooking = function (caretakerId) {
+window.startBooking = async function (caretakerId) {
   const c = allCaretakers.find((item) => item.id === caretakerId)
   if (!c) return
 
   activeBookingCaretaker = c
-  bookingStep = 0
-  selectedBookingDate = ""
+  await checkAuthStatus()
+
+  // First step is Sign Up / Login if not logged in
+  bookingStep = loggedInUser ? 1 : 0
+  selectedBookingDate = getTodayIso()
   selectedBookingHours = 4
   selectedBookingTime = ""
   selectedBookingAddress = ""
 
   document.getElementById("booking-caretaker-name").textContent = c.name
-  document.getElementById("booking-caretaker-rate").textContent = `₹${c.price}/hr`
+  const rateBadge = document.getElementById("booking-caretaker-rate")
+  if (rateBadge) rateBadge.textContent = `₹${c.price}/hr`
+  
   document.getElementById("booking-modal").classList.add("active")
-
   renderBookingStep()
+}
+
+window.closeBookingModal = function () {
+  const modal = document.getElementById("booking-modal")
+  const popup = document.getElementById("booking-confirm-popup")
+  if (modal) modal.classList.remove("active")
+  if (popup) popup.classList.remove("active")
+}
+
+window.setAuthTab = function (mode) {
+  authMode = mode
+  renderBookingStep()
+}
+
+window.handleModalAuth = async function (action) {
+  const errorEl = document.getElementById("modal-auth-error")
+  const submitBtn = document.getElementById("modal-auth-submit-btn")
+  if (errorEl) {
+    errorEl.textContent = ""
+    errorEl.style.display = "none"
+  }
+  if (submitBtn) {
+    submitBtn.disabled = true
+    submitBtn.textContent = action === "login" ? "Logging in…" : "Creating account…"
+  }
+
+  try {
+    let payload = { action }
+    if (action === "login") {
+      const email = document.getElementById("modal-login-email")?.value.trim()
+      const password = document.getElementById("modal-login-password")?.value
+      if (!email || !password) {
+        throw new Error("Please enter both email and password.")
+      }
+      payload.email = email
+      payload.password = password
+    } else {
+      const name = document.getElementById("modal-signup-name")?.value.trim()
+      const phone = document.getElementById("modal-signup-phone")?.value.trim()
+      const email = document.getElementById("modal-signup-email")?.value.trim()
+      const password = document.getElementById("modal-signup-password")?.value
+      if (!name || !phone || !email || !password) {
+        throw new Error("Please fill in all registration fields.")
+      }
+      if (password.length < 8) {
+        throw new Error("Password must be at least 8 characters long.")
+      }
+      payload.name = name
+      payload.phone = phone
+      payload.location = "Bengaluru"
+      payload.careNeeds = "Elderly / Patient Care"
+      payload.email = email
+      payload.password = password
+    }
+
+    const response = await fetch("/api/account", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.error || "Authentication failed.")
+    }
+
+    loggedInUser = data.user
+    if (typeof checkUserSession === "function") {
+      checkUserSession()
+    }
+    bookingStep = 1
+    renderBookingStep()
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message
+      errorEl.style.display = "block"
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.textContent = action === "login" ? "Log In & Continue ➔" : "Create Account & Continue ➔"
+    }
+  }
 }
 
 function renderBookingStep() {
@@ -672,162 +809,385 @@ function renderBookingStep() {
     else bar.classList.remove("active")
   })
 
+  // STEP 0: Authentication (Sign up or Login if not logged in)
   if (bookingStep === 0) {
     backBtn.style.display = "none"
+
+    if (loggedInUser) {
+      continueBtn.style.display = "inline-flex"
+      continueBtn.textContent = "Continue to Date & Hours ➔"
+      continueBtn.disabled = false
+
+      stepContainer.innerHTML = `
+        <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:0.75rem; padding:1.25rem; text-align:center;">
+          <div style="font-size:2.2rem; margin-bottom:0.35rem;">👤</div>
+          <h4 style="font-size:1.15rem; font-weight:800; color:#166534; margin-bottom:0.25rem;">Logged In as Verified User</h4>
+          <p style="font-size:0.875rem; color:#15803d; margin-bottom:0.75rem;">
+            Booking with family profile: <strong>${loggedInUser.name}</strong> (${loggedInUser.email})
+          </p>
+          <span style="display:inline-block; font-size:0.75rem; font-weight:700; background:#dcfce7; color:#166534; padding:0.25rem 0.75rem; border-radius:9999px;">
+            ✓ Step 1 of 5 Completed
+          </span>
+        </div>
+      `
+    } else {
+      continueBtn.style.display = "none"
+
+      stepContainer.innerHTML = `
+        <div style="margin-bottom:0.75rem;">
+          <span style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Step 1 of 5 · Authentication</span>
+          <h3 style="font-weight:800; font-size:1.15rem; margin-top:0.15rem;">Log in or Sign up to Book</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted);">Please sign in or create an account to reserve an appointment.</p>
+        </div>
+
+        <!-- Auth Tabs -->
+        <div style="display:flex; border-bottom:1px solid var(--border-color); margin-bottom:1rem;">
+          <button type="button" onclick="setAuthTab('login')" style="flex:1; padding:0.5rem; font-size:0.85rem; font-weight:700; border:none; background:transparent; cursor:pointer; border-bottom:2px solid ${authMode === 'login' ? 'var(--primary)' : 'transparent'}; color:${authMode === 'login' ? 'var(--primary)' : 'var(--text-muted)'};">
+            🔑 Log In
+          </button>
+          <button type="button" onclick="setAuthTab('signup')" style="flex:1; padding:0.5rem; font-size:0.85rem; font-weight:700; border:none; background:transparent; cursor:pointer; border-bottom:2px solid ${authMode === 'signup' ? 'var(--primary)' : 'transparent'}; color:${authMode === 'signup' ? 'var(--primary)' : 'var(--text-muted)'};">
+            ✍️ Create Account
+          </button>
+        </div>
+
+        <div id="modal-auth-error" style="display:none; color:#b91c1c; background:#fee2e2; border:1px solid #fecaca; padding:0.5rem 0.75rem; border-radius:0.5rem; font-size:0.8rem; margin-bottom:0.75rem;"></div>
+
+        ${
+          authMode === "login"
+            ? `
+          <div>
+            <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Email Address</label>
+            <input type="email" id="modal-login-email" class="hero-input-field" placeholder="you@example.com" style="width:100%; padding:0.55rem 0.75rem; margin-bottom:0.75rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+            
+            <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">Password</label>
+            <input type="password" id="modal-login-password" class="hero-input-field" placeholder="••••••••" style="width:100%; padding:0.55rem 0.75rem; margin-bottom:1rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+            
+            <button type="button" id="modal-auth-submit-btn" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.7rem; font-weight:700;" onclick="handleModalAuth('login')">
+              Log In & Continue ➔
+            </button>
+          </div>
+        `
+            : `
+          <div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.2rem;">Full Name</label>
+                <input type="text" id="modal-signup-name" class="hero-input-field" placeholder="Rahul Sharma" style="width:100%; padding:0.45rem 0.65rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.2rem;">Phone Number</label>
+                <input type="tel" id="modal-signup-phone" class="hero-input-field" placeholder="+91 98765 43210" style="width:100%; padding:0.45rem 0.65rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+              </div>
+            </div>
+
+            <label style="display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.2rem;">Email Address</label>
+            <input type="email" id="modal-signup-email" class="hero-input-field" placeholder="you@example.com" style="width:100%; padding:0.45rem 0.65rem; margin-bottom:0.5rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+
+            <label style="display:block; font-size:0.75rem; font-weight:600; margin-bottom:0.2rem;">Password (min 8 chars)</label>
+            <input type="password" id="modal-signup-password" class="hero-input-field" placeholder="••••••••" style="width:100%; padding:0.45rem 0.65rem; margin-bottom:0.85rem; border:1px solid var(--border-color); border-radius:0.5rem; font-size:0.85rem;">
+
+            <button type="button" id="modal-auth-submit-btn" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.7rem; font-weight:700;" onclick="handleModalAuth('signup')">
+              Create Account & Continue ➔
+            </button>
+          </div>
+        `
+        }
+      `
+    }
+  }
+
+  // STEP 1: Select Date and Duration of Work (Auto-Calculates Amount)
+  else if (bookingStep === 1) {
+    backBtn.style.display = loggedInUser ? "none" : "inline-flex"
     continueBtn.style.display = "inline-flex"
-    continueBtn.textContent = "Continue ➔"
+    continueBtn.textContent = "Continue to Starting Time ➔"
     continueBtn.disabled = !selectedBookingDate
 
-    // Generate upcoming 12 dates
+    const todayIso = getTodayIso()
+    if (!selectedBookingDate || selectedBookingDate < todayIso) {
+      selectedBookingDate = todayIso
+    }
+
+    // Generate upcoming 10 dates starting strictly today (no past date)
     const dates = []
     const now = new Date()
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
       const d = new Date(now)
       d.setDate(now.getDate() + i)
+      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
       dates.push({
-        iso: d.toISOString().slice(0, 10),
-        day: d.toLocaleDateString("en-US", { weekday: "short" }),
+        iso,
+        isToday: i === 0,
+        day: i === 0 ? "Today" : d.toLocaleDateString("en-US", { weekday: "short" }),
         date: d.getDate(),
         month: d.toLocaleDateString("en-US", { month: "short" })
       })
     }
 
-    stepContainer.innerHTML = `
-      <h3 style="font-weight:700; margin-bottom:0.25rem;">1. Choose a Date</h3>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Click any date to select it.</p>
-      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:0.5rem; max-height:220px; overflow-y:auto; padding-right:2px;">
-        ${dates.map(d => {
-          const isSelected = selectedBookingDate === d.iso
-          const activeStyle = isSelected
-            ? 'background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);'
-            : 'background:#fff; color:var(--text-main); border:1px solid var(--border-color);'
-          return `
-            <button type="button" class="btn btn-outline" style="display:flex; flex-direction:column; align-items:center; padding:0.5rem 0.25rem; border-radius:0.75rem; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectDate('${d.iso}')">
-              <span style="font-size:0.65rem; text-transform:uppercase; opacity:0.8;">${d.day}</span>
-              <span style="font-size:1.1rem; font-weight:800; margin:0.15rem 0;">${d.date}</span>
-              <span style="font-size:0.65rem; opacity:0.8;">${d.month}</span>
-            </button>
-          `
-        }).join('')}
-      </div>
-    `
-  } else if (bookingStep === 1) {
-    backBtn.style.display = "inline-flex"
-    continueBtn.style.display = "inline-flex"
-    continueBtn.textContent = "Continue ➔"
-    continueBtn.disabled = !selectedBookingHours
-
     const durationPresets = [2, 4, 6, 8, 12]
     const totalCost = activeBookingCaretaker.price * selectedBookingHours
 
     stepContainer.innerHTML = `
-      <h3 style="font-weight:700; margin-bottom:0.25rem;">2. Number of Hours of Work</h3>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Select how many hours of care assistance you require.</p>
-      <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.4rem;">
-        ${durationPresets.map(hrs => {
-          const isSelected = selectedBookingHours === hrs
-          const activeStyle = isSelected
-            ? 'background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);'
-            : 'background:#fff; color:var(--text-main); border:1px solid var(--border-color);'
-          return `
-            <button type="button" class="btn btn-outline" style="display:flex; flex-direction:column; align-items:center; padding:0.6rem 0.2rem; border-radius:0.75rem; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectHours(${hrs})">
-              <span style="font-size:1.15rem; font-weight:800;">${hrs}</span>
-              <span style="font-size:0.65rem; opacity:0.85;">${hrs === 1 ? 'Hour' : 'Hours'}</span>
+      <div style="margin-bottom:0.75rem;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Step 2 of 5 · Schedule & Hours</span>
+        <h3 style="font-weight:800; font-size:1.15rem; margin-top:0.15rem;">Select Date & Work Duration</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted);">Choose a service date (past dates disabled) and work duration.</p>
+      </div>
+
+      <!-- Aesthetic Date Cards Grid -->
+      <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.35rem;">Upcoming Dates</label>
+      <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.4rem; max-height:160px; overflow-y:auto; padding:2px;">
+        ${dates
+          .map((d) => {
+            const isSelected = selectedBookingDate === d.iso
+            const activeStyle = isSelected
+              ? "background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);"
+              : "background:#fff; color:var(--text-main); border:1px solid var(--border-color);"
+            return `
+            <button type="button" class="btn btn-outline" style="display:flex; flex-direction:column; align-items:center; padding:0.45rem 0.2rem; border-radius:0.75rem; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectDate('${d.iso}')">
+              <span style="font-size:0.65rem; text-transform:uppercase; opacity:0.85; font-weight:700;">${d.day}</span>
+              <span style="font-size:1.1rem; font-weight:800; margin:0.1rem 0;">${d.date}</span>
+              <span style="font-size:0.65rem; opacity:0.8;">${d.month}</span>
             </button>
           `
-        }).join('')}
+          })
+          .join("")}
       </div>
 
-      <!-- Custom Stepper -->
-      <div style="margin-top:0.75rem; display:flex; align-items:center; justify-content:space-between; background:var(--bg-main); border:1px solid var(--border-color); border-radius:0.75rem; padding:0.5rem 0.75rem;">
-        <div>
-          <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block;">Custom Duration</span>
-          <span style="font-size:0.85rem; font-weight:700; color:var(--text-main);">Adjust hours (1 - 24 hrs)</span>
-        </div>
+      <!-- Aesthetic Native Date Picker (Strict min=today prevents past dates) -->
+      <div style="margin-top:0.6rem; display:flex; align-items:center; justify-content:space-between; background:var(--bg-main); border:1px solid var(--border-color); border-radius:0.65rem; padding:0.4rem 0.75rem;">
+        <span style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Or pick a specific future date:</span>
+        <input type="date" id="booking-custom-date" min="${todayIso}" value="${selectedBookingDate}" class="hero-input-field" style="padding:0.3rem 0.5rem; font-size:0.8rem; border-radius:0.4rem; border:1px solid var(--border-color);" onchange="selectDate(this.value)">
+      </div>
+
+      <!-- Work Duration Selection -->
+      <label style="display:block; font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-top:0.75rem; margin-bottom:0.35rem;">Hours of Work</label>
+      <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.4rem;">
+        ${durationPresets
+          .map((hrs) => {
+            const isSelected = selectedBookingHours === hrs
+            const activeStyle = isSelected
+              ? "background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);"
+              : "background:#fff; color:var(--text-main); border:1px solid var(--border-color);"
+            return `
+            <button type="button" class="btn btn-outline" style="display:flex; flex-direction:column; align-items:center; padding:0.5rem 0.2rem; border-radius:0.75rem; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectHours(${hrs})">
+              <span style="font-size:1.1rem; font-weight:800;">${hrs}</span>
+              <span style="font-size:0.65rem; opacity:0.85;">Hours</span>
+            </button>
+          `
+          })
+          .join("")}
+      </div>
+
+      <!-- Custom Hour Stepper -->
+      <div style="margin-top:0.5rem; display:flex; align-items:center; justify-content:space-between; background:var(--bg-main); border:1px solid var(--border-color); border-radius:0.65rem; padding:0.4rem 0.75rem;">
+        <span style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Adjust Duration (1 - 24 hrs)</span>
         <div style="display:flex; align-items:center; gap:0.4rem;">
-          <button type="button" class="btn btn-outline" style="width:2rem; height:2rem; padding:0; font-weight:800; border-radius:0.5rem;" onclick="adjustHours(-1)">−</button>
-          <span style="font-weight:800; min-width:3rem; text-align:center; font-size:0.9rem;">${selectedBookingHours} hrs</span>
-          <button type="button" class="btn btn-outline" style="width:2rem; height:2rem; padding:0; font-weight:800; border-radius:0.5rem;" onclick="adjustHours(1)">+</button>
+          <button type="button" class="btn btn-outline" style="width:1.85rem; height:1.85rem; padding:0; font-weight:800; border-radius:0.4rem;" onclick="adjustHours(-1)">−</button>
+          <span style="font-weight:800; min-width:2.5rem; text-align:center; font-size:0.85rem;">${selectedBookingHours} hrs</span>
+          <button type="button" class="btn btn-outline" style="width:1.85rem; height:1.85rem; padding:0; font-weight:800; border-radius:0.4rem;" onclick="adjustHours(1)">+</button>
         </div>
       </div>
 
-      <!-- Live Price Calculation -->
-      <div style="margin-top:0.75rem; background:#f0fdfa; border:1px solid #99f6e4; border-radius:0.75rem; padding:0.6rem 0.75rem; display:flex; justify-content:space-between; align-items:center;">
+      <!-- Live Auto-Calculated Amount Card -->
+      <div style="margin-top:0.75rem; background:linear-gradient(135deg, #f0fdfa, #e6fffa); border:1.5px solid #5eead4; border-radius:0.75rem; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <span style="font-size:0.7rem; color:var(--text-muted); display:block;">Estimated Cost Calculation</span>
-          <span style="font-size:0.8rem; font-weight:600; color:var(--text-main);">₹${activeBookingCaretaker.price} / hr × ${selectedBookingHours} hrs</span>
+          <span style="font-size:0.7rem; font-weight:700; color:#0f766e; text-transform:uppercase; letter-spacing:0.04em; display:block;">Auto-Calculated Amount</span>
+          <span style="font-size:0.85rem; color:#134e4a; font-weight:600;">₹${activeBookingCaretaker.price} / hr × ${selectedBookingHours} hrs</span>
         </div>
-        <span style="font-size:1.2rem; font-weight:800; color:var(--primary);">₹${totalCost}</span>
+        <div style="text-align:right;">
+          <span style="font-size:1.35rem; font-weight:800; color:#0d9488;">₹${totalCost}</span>
+          <span style="font-size:0.65rem; color:#115e59; display:block;">Total to pay</span>
+        </div>
       </div>
     `
-  } else if (bookingStep === 2) {
+  }
+
+  // STEP 2: Select Starting Time (Min 1 hour future when date is today)
+  else if (bookingStep === 2) {
     backBtn.style.display = "inline-flex"
     continueBtn.style.display = "inline-flex"
-    continueBtn.textContent = "Continue ➔"
-    continueBtn.disabled = !selectedBookingTime
+    continueBtn.textContent = "Continue to Address ➔"
 
-    const timeSlots = [
+    const todayIso = getTodayIso()
+    const isToday = selectedBookingDate === todayIso
+    const minTimeString = getMinTimeStringForToday()
+
+    const standardTimeSlots = [
       "08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", 
       "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", 
-      "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", "08:00 PM"
+      "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM", 
+      "08:00 PM", "09:00 PM"
     ]
 
+    // Validate active selected time
+    const isSelectedTimeValid = selectedBookingTime && isTimeSlotAvailable(selectedBookingTime, selectedBookingDate)
+    continueBtn.disabled = !isSelectedTimeValid
+
+    // Count available slots for today
+    const availableSlots = standardTimeSlots.filter((t) => isTimeSlotAvailable(t, selectedBookingDate))
+
     stepContainer.innerHTML = `
-      <h3 style="font-weight:700; margin-bottom:0.25rem;">3. What Time to Begin?</h3>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">Select your preferred shift start time.</p>
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.4rem; max-height:220px; overflow-y:auto; padding-right:2px;">
-        ${timeSlots.map(t => {
-          const isSelected = selectedBookingTime === t
-          const activeStyle = isSelected
-            ? 'background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);'
-            : 'background:#fff; color:var(--text-main); border:1px solid var(--border-color);'
-          return `
-            <button type="button" class="btn btn-outline" style="padding:0.6rem 0.4rem; border-radius:0.75rem; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectTime('${t}')">
-              ${t}
-            </button>
-          `
-        }).join('')}
+      <div style="margin-bottom:0.75rem;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Step 3 of 5 · Starting Time</span>
+        <h3 style="font-weight:800; font-size:1.15rem; margin-top:0.15rem;">Select Care Starting Time</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted);">
+          Selected Date: <strong>${selectedBookingDate}</strong> ${isToday ? "(Today)" : ""}
+        </p>
       </div>
+
+      ${
+        isToday
+          ? `
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:0.65rem; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.78rem; color:#1e40af; display:flex; align-items:center; gap:0.4rem;">
+          <span style="font-size:1rem;">⚡</span>
+          <span><strong>Notice:</strong> For today's service, starting time must be at least 1 hour in future (after <strong>${minTimeString}</strong>).</span>
+        </div>
+      `
+          : ""
+      }
+
+      ${
+        isToday && availableSlots.length === 0
+          ? `
+        <div style="text-align:center; padding:1.25rem; background:#fff7ed; border:1px dashed #fdba74; border-radius:0.75rem; margin-bottom:1rem;">
+          <p style="font-size:0.9rem; font-weight:700; color:#c2410c;">No remaining slots available for today</p>
+          <p style="font-size:0.8rem; color:#9a3412; margin:0.25rem 0 0.75rem;">All appointments require a minimum 1 hour advance booking notice.</p>
+          <button type="button" class="btn btn-primary" onclick="selectDate('${getTomorrowIso()}')">
+            📅 Switch to Tomorrow (${getTomorrowIso()})
+          </button>
+        </div>
+      `
+          : `
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.4rem; max-height:190px; overflow-y:auto; padding:2px;">
+          ${standardTimeSlots
+            .map((t) => {
+              const available = isTimeSlotAvailable(t, selectedBookingDate)
+              const isSelected = selectedBookingTime === t
+
+              if (!available) {
+                return `
+                  <button type="button" class="btn" disabled style="padding:0.55rem 0.35rem; border-radius:0.65rem; font-size:0.8rem; font-weight:600; opacity:0.35; cursor:not-allowed; text-decoration:line-through; background:#f1f5f9; color:#94a3b8; border:1px solid #e2e8f0;" title="Must be at least 1 hour in advance">
+                    ${t}
+                  </button>
+                `
+              }
+
+              const activeStyle = isSelected
+                ? "background:var(--primary) !important; color:#fff !important; border:2px solid var(--primary) !important; font-weight:700; box-shadow:0 4px 10px rgba(13,148,136,0.3); transform:scale(1.02);"
+                : "background:#fff; color:var(--text-main); border:1px solid var(--border-color);"
+
+              return `
+                <button type="button" class="btn btn-outline" style="padding:0.55rem 0.35rem; border-radius:0.65rem; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.15s ease; ${activeStyle}" onclick="selectTime('${t}')">
+                  ${t}
+                </button>
+              `
+            })
+            .join("")}
+        </div>
+      `
+      }
+
+      <!-- Custom Time Selector -->
+      <div style="margin-top:0.75rem; display:flex; align-items:center; justify-content:space-between; background:var(--bg-main); border:1px solid var(--border-color); border-radius:0.65rem; padding:0.4rem 0.75rem;">
+        <span style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Custom Starting Time:</span>
+        <input type="time" id="booking-custom-time" class="hero-input-field" style="padding:0.3rem 0.5rem; font-size:0.8rem; border-radius:0.4rem; border:1px solid var(--border-color);" onchange="handleCustomTimeChange(this.value)">
+      </div>
+      <div id="custom-time-error" style="display:none; color:#dc2626; font-size:0.75rem; margin-top:0.35rem; font-weight:600;"></div>
     `
-  } else if (bookingStep === 3) {
+  }
+
+  // STEP 3: Service Address & Final Summary Review
+  else if (bookingStep === 3) {
     backBtn.style.display = "inline-flex"
     continueBtn.style.display = "inline-flex"
-    continueBtn.textContent = "Confirm & Save Booking ✓"
+    continueBtn.textContent = "Confirm Booking ✓"
     continueBtn.disabled = selectedBookingAddress.trim().length < 5
 
     const total = activeBookingCaretaker.price * selectedBookingHours
+    const userName = loggedInUser ? loggedInUser.name : "Guest Family"
+    const userEmail = loggedInUser ? loggedInUser.email : "Not Provided"
 
     stepContainer.innerHTML = `
-      <h3 style="font-weight:700; margin-bottom:0.25rem;">4. Service Location & Review</h3>
-      <label style="display:block; font-size:0.8rem; font-weight:600; margin-bottom:0.25rem;">
-        Service Address <span style="color:#ef4444;">*</span>
-      </label>
-      <textarea id="booking-address" rows="2" class="hero-input-field" style="width:100%; resize:none; padding:0.5rem; font-size:0.85rem; border-radius:0.5rem; border:1px solid var(--border-color);" placeholder="Enter house no, street, locality, landmark, city (min 5 characters)" oninput="checkAddress(this)">${selectedBookingAddress}</textarea>
+      <div style="margin-bottom:0.75rem;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--primary); text-transform:uppercase;">Step 4 of 5 · Address & Review</span>
+        <h3 style="font-weight:800; font-size:1.15rem; margin-top:0.15rem;">Enter Service Address</h3>
+        <p style="font-size:0.8rem; color:var(--text-muted);">Provide the exact address where caretaker care will be delivered.</p>
+      </div>
 
+      <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;">
+        Service Location / Address <span style="color:#ef4444;">*</span>
+      </label>
+      <textarea id="booking-address" rows="2" class="hero-input-field" style="width:100%; resize:none; padding:0.5rem; font-size:0.85rem; border-radius:0.5rem; border:1px solid var(--border-color);" placeholder="Enter house no, street, locality, landmark, Bengaluru (min 5 characters)" oninput="checkAddress(this)">${selectedBookingAddress}</textarea>
+
+      <!-- Booking Itemized Review Card -->
       <div style="margin-top:0.75rem; background:var(--bg-main); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.75rem; display:flex; flex-direction:column; gap:0.4rem; font-size:0.85rem;">
-        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Caretaker:</span> <strong>${activeBookingCaretaker.name}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Date:</span> <strong>${selectedBookingDate}</strong></div>
-        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Shift:</span> <strong>Starting at ${selectedBookingTime} (${selectedBookingHours} hrs)</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Caretaker:</span> <strong>${activeBookingCaretaker.name} (₹${activeBookingCaretaker.price}/hr)</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Client Account:</span> <strong>${userName} (${userEmail})</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Scheduled Date:</span> <strong>${selectedBookingDate}</strong></div>
+        <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Shift Schedule:</span> <strong>${selectedBookingTime} (${selectedBookingHours} hrs)</strong></div>
         <div style="border-top:1px solid var(--border-color); padding-top:0.4rem; display:flex; justify-content:space-between; align-items:center;">
           <div>
             <span style="font-size:0.75rem; color:var(--text-muted); display:block;">Rate</span>
             <span style="font-size:0.85rem; font-weight:600;">₹${activeBookingCaretaker.price} / hr</span>
           </div>
           <div style="text-align:right;">
-            <span style="font-size:0.75rem; color:var(--text-muted); display:block;">Estimated Total</span>
-            <span style="font-weight:800; font-size:1.15rem; color:var(--primary);">₹${total}</span>
+            <span style="font-size:0.75rem; color:var(--text-muted); display:block;">Total to Pay</span>
+            <span style="font-weight:800; font-size:1.25rem; color:var(--primary);">₹${total}</span>
           </div>
         </div>
       </div>
     `
-  } else if (bookingStep === 4) {
+  }
+
+  // STEP 4: Confirmed Receipt Screen
+  else if (bookingStep === 4) {
     backBtn.style.display = "none"
     continueBtn.style.display = "none"
+
+    const totalCost = activeBookingCaretaker.price * selectedBookingHours
+    const bookingId = lastSubmittedBooking ? lastSubmittedBooking.id : "CS-CONFIRMED"
+
+    stepContainer.innerHTML = `
+      <div style="text-align:center; padding:0.5rem 0;">
+        <div style="display:inline-flex; width:3.5rem; height:3.5rem; border-radius:9999px; background:#ecfdf5; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:0.5rem;">
+          ✅
+        </div>
+        <span style="display:inline-block; font-size:0.75rem; font-weight:700; color:#065f46; background:#d1fae5; padding:0.2rem 0.6rem; border-radius:9999px; margin-bottom:0.35rem;">Step 5 of 5 · Confirmed</span>
+        <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-main);">Booking Confirmed!</h3>
+        <p style="color:var(--text-muted); font-size:0.8rem;">
+          Your appointment has been reserved and registered in bookings.json.
+        </p>
+
+        <div style="margin-top:0.85rem; text-align:left; background:var(--bg-main); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.75rem; font-size:0.85rem; display:flex; flex-direction:column; gap:0.35rem;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Booking ID:</span> <strong style="color:var(--primary);">${bookingId}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Caretaker:</span> <strong>${activeBookingCaretaker.name}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Date:</span> <strong>${selectedBookingDate}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Shift:</span> <strong>${selectedBookingTime} (${selectedBookingHours} hrs)</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Location:</span> <strong>${selectedBookingAddress}</strong></div>
+          <div style="border-top:1px solid var(--border-color); padding-top:0.35rem; display:flex; justify-content:space-between;">
+            <span style="font-weight:700;">Total Amount:</span>
+            <strong style="color:var(--primary); font-size:1.15rem;">₹${totalCost}</strong>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; gap:0.5rem; justify-content:center;">
+          <a href="dashboard.html?section=Bookings" class="btn btn-primary" style="flex:1; text-align:center;">View in Dashboard</a>
+          <button type="button" class="btn btn-outline" onclick="closeBookingModal()">Done</button>
+        </div>
+      </div>
+    `
   }
 }
 
 window.selectDate = function (dateStr) {
+  const todayIso = getTodayIso()
+  if (dateStr < todayIso) {
+    alert("Past dates cannot be selected. Please choose today or a future date.")
+    return
+  }
   selectedBookingDate = dateStr
+  selectedBookingTime = ""
   renderBookingStep()
 }
 
@@ -842,88 +1202,64 @@ window.adjustHours = function (delta) {
 }
 
 window.selectTime = function (timeStr) {
+  if (!isTimeSlotAvailable(timeStr, selectedBookingDate)) {
+    alert("For today's booking, the starting time must be at least 1 hour in advance.")
+    return
+  }
   selectedBookingTime = timeStr
+  renderBookingStep()
+}
+
+window.handleCustomTimeChange = function (val) {
+  const errorEl = document.getElementById("custom-time-error")
+  const continueBtn = document.getElementById("wizard-continue-btn")
+  if (!val) return
+
+  const parts = val.split(":")
+  let h = parseInt(parts[0], 10)
+  const m = parts[1] || "00"
+  const ampm = h >= 12 ? "PM" : "AM"
+  if (h === 0) h = 12
+  else if (h > 12) h -= 12
+  const formatted = `${String(h).padStart(2, "0")}:${m} ${ampm}`
+
+  if (selectedBookingDate === getTodayIso()) {
+    const totalMins = parseInt(parts[0], 10) * 60 + parseInt(m, 10)
+    const minMins = getMinAllowedMinutesForToday()
+    if (totalMins < minMins) {
+      if (errorEl) {
+        errorEl.textContent = `⚠️ Starting time must be at least 1 hour in advance (after ${getMinTimeStringForToday()}).`
+        errorEl.style.display = "block"
+      }
+      if (continueBtn) continueBtn.disabled = true
+      selectedBookingTime = ""
+      return
+    }
+  }
+
+  if (errorEl) errorEl.style.display = "none"
+  selectedBookingTime = formatted
+  if (continueBtn) continueBtn.disabled = false
   renderBookingStep()
 }
 
 window.checkAddress = function (el) {
   selectedBookingAddress = el.value
-  document.getElementById("wizard-continue-btn").disabled = selectedBookingAddress.trim().length < 5
+  const continueBtn = document.getElementById("wizard-continue-btn")
+  if (continueBtn) {
+    continueBtn.disabled = selectedBookingAddress.trim().length < 5
+  }
 }
 
-async function handleWizardNext() {
+function handleWizardNext() {
   if (bookingStep < 3) {
     bookingStep++
     renderBookingStep()
   } else if (bookingStep === 3) {
-    // Submit booking to POST /api/bookings which writes to data/bookings.json
-    const continueBtn = document.getElementById("wizard-continue-btn")
-    continueBtn.disabled = true
-    continueBtn.textContent = "Confirming booking…"
-
-    const addr = selectedBookingAddress.trim() || document.getElementById("booking-address")?.value?.trim() || "Koramangala, Bengaluru"
-
-    try {
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          caretakerId: activeBookingCaretaker.id,
-          date: selectedBookingDate,
-          time: selectedBookingTime,
-          address: addr,
-          durationHours: selectedBookingHours,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Please log in before submitting a booking.")
-      }
-
-      bookingStep = 4
-      const stepperBars = document.querySelectorAll(".stepper-bar")
-      stepperBars.forEach((bar) => bar.classList.add("active"))
-
-      const stepContainer = document.getElementById("wizard-step-content")
-      const totalCost = activeBookingCaretaker.price * selectedBookingHours
-
-      stepContainer.innerHTML = `
-        <div style="text-align:center; padding:1rem 0;">
-          <div style="display:inline-flex; width:3.5rem; height:3.5rem; border-radius:9999px; background:#ecfdf5; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:0.5rem;">
-            ✅
-          </div>
-          <span style="display:inline-block; font-size:0.75rem; font-weight:700; color:#065f46; background:#d1fae5; padding:0.2rem 0.6rem; border-radius:9999px; margin-bottom:0.5rem;">Step 5 of 5 · Confirmed</span>
-          <h3 style="font-size:1.35rem; font-weight:800; color:var(--text-main);">Booking Confirmed!</h3>
-          <p style="color:var(--text-muted); margin-top:0.25rem; font-size:0.8rem;">
-            Your care appointment has been reserved and scheduled with your care coordinator.
-          </p>
-
-          <div style="margin-top:1rem; text-align:left; background:var(--bg-main); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:0.75rem; font-size:0.85rem; display:flex; flex-direction:column; gap:0.35rem;">
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Booking ID:</span> <strong style="color:var(--primary);">${data.booking?.id || 'CS-CONFIRMED'}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Caretaker:</span> <strong>${activeBookingCaretaker.name}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Date:</span> <strong>${selectedBookingDate}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Shift:</span> <strong>Starting at ${selectedBookingTime} (${selectedBookingHours} hrs)</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-muted);">Location:</span> <strong>${addr}</strong></div>
-            <div style="border-top:1px solid var(--border-color); padding-top:0.35rem; display:flex; justify-content:space-between;">
-              <span style="font-weight:700;">Total Cost:</span>
-              <strong style="color:var(--primary); font-size:1.05rem;">₹${totalCost}</strong>
-            </div>
-          </div>
-
-          <div style="margin-top:1.25rem; display:flex; gap:0.5rem; justify-content:center;">
-            <a href="dashboard.html?section=Bookings" class="btn btn-primary" style="flex:1; text-align:center;">View in Dashboard</a>
-            <button type="button" class="btn btn-outline" onclick="document.getElementById('booking-modal').classList.remove('active')">Close</button>
-          </div>
-        </div>
-      `
-      continueBtn.style.display = "none"
-      document.getElementById("wizard-back-btn").style.display = "none"
-    } catch (err) {
-      alert(err.message + " (Please log in via the Login page to save your booking).")
-      continueBtn.disabled = false
-      continueBtn.textContent = "Confirm & Save Booking ✓"
+    // When user taps "Confirm Booking", show popup: "Do you actually want to book or just checking?"
+    const popup = document.getElementById("booking-confirm-popup")
+    if (popup) {
+      popup.classList.add("active")
     }
   }
 }
@@ -932,6 +1268,50 @@ function handleWizardBack() {
   if (bookingStep > 0) {
     bookingStep--
     renderBookingStep()
+  }
+}
+
+async function confirmAndSubmitBooking() {
+  const continueBtn = document.getElementById("wizard-continue-btn")
+  if (continueBtn) {
+    continueBtn.disabled = true
+    continueBtn.textContent = "Saving booking…"
+  }
+
+  const addr = selectedBookingAddress.trim() || "Koramangala, Bengaluru"
+  const totalCost = activeBookingCaretaker.price * selectedBookingHours
+
+  try {
+    const response = await fetch("/api/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        caretakerId: activeBookingCaretaker.id,
+        caretakerName: activeBookingCaretaker.name,
+        familyName: loggedInUser ? loggedInUser.name : "CareSure Family",
+        familyEmail: loggedInUser ? loggedInUser.email : "family@example.com",
+        date: selectedBookingDate,
+        time: selectedBookingTime,
+        address: addr,
+        durationHours: selectedBookingHours,
+        estimatedTotal: totalCost
+      })
+    })
+
+    const data = await response.json()
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to confirm booking.")
+    }
+
+    lastSubmittedBooking = data.booking || { id: "CS-CONFIRMED" }
+    bookingStep = 4
+    renderBookingStep()
+  } catch (err) {
+    alert(err.message)
+    if (continueBtn) {
+      continueBtn.disabled = false
+      continueBtn.textContent = "Confirm Booking ✓"
+    }
   }
 }
 

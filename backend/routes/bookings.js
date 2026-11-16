@@ -24,10 +24,10 @@ function handleBookings(req, res, pathname, method, parsedBody, sendJson) {
     const newBooking = {
       id: `CS-${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
       userId: user ? user.id : "guest-user",
-      familyName: user ? user.name : "Guest Family",
-      familyEmail: user ? user.email : "guest@example.com",
+      familyName: user ? user.name : (parsedBody.familyName || "Guest Family"),
+      familyEmail: user ? user.email : (parsedBody.familyEmail || "guest@example.com"),
       caretakerId,
-      caretakerName: "Caregiver Specialist",
+      caretakerName: parsedBody.caretakerName || "Caregiver Specialist",
       date,
       time,
       address,
