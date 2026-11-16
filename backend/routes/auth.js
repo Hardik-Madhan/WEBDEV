@@ -28,10 +28,15 @@ function handleAuth(req, res, pathname, method, parsedBody, sendJson) {
       const password = String(parsedBody.password || "")
 
       const users = readJson("users.json")
-      const user = users.find((u) => u.email === email && u.password === password)
+      const user = users.find((u) => u.email.toLowerCase() === email)
 
       if (!user) {
-        sendJson(401, { error: "Incorrect email or password." })
+        sendJson(404, { error: "No account exists with this email. Please sign up first." })
+        return true
+      }
+
+      if (user.password !== password) {
+        sendJson(401, { error: "Incorrect password. Please verify and try again." })
         return true
       }
 

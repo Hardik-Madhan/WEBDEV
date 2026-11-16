@@ -9,6 +9,7 @@ const path = require("path")
 const crypto = require("crypto")
 
 const DATA_DIR = path.join(__dirname, "data")
+const FRONTEND_DATA_DIR = path.join(__dirname, "..", "frontend", "data")
 
 // Ensure data folder exists
 if (!fs.existsSync(DATA_DIR)) {
@@ -18,9 +19,16 @@ if (!fs.existsSync(DATA_DIR)) {
 function readJson(fileName) {
   const filePath = path.join(DATA_DIR, fileName)
   try {
-    if (!fs.existsSync(filePath)) return []
-    const content = fs.readFileSync(filePath, "utf8")
-    return JSON.parse(content) || []
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, "utf8")
+      return JSON.parse(content) || []
+    }
+    const fePath = path.join(FRONTEND_DATA_DIR, fileName)
+    if (fs.existsSync(fePath)) {
+      const content = fs.readFileSync(fePath, "utf8")
+      return JSON.parse(content) || []
+    }
+    return []
   } catch (err) {
     return []
   }
@@ -31,6 +39,14 @@ function writeJson(fileName, data) {
   const tempPath = `${filePath}.${crypto.randomUUID()}.tmp`
   fs.writeFileSync(tempPath, JSON.stringify(data, null, 2), "utf8")
   fs.renameSync(tempPath, filePath)
+
+  // Also sync to frontend/data so JSON files are immediately accessible everywhere
+  try {
+    if (fs.existsSync(FRONTEND_DATA_DIR)) {
+      const fePath = path.join(FRONTEND_DATA_DIR, fileName)
+      fs.writeFileSync(fePath, JSON.stringify(data, null, 2), "utf8")
+    }
+  } catch (err) {}
 }
 
 function parseCookies(req) {
