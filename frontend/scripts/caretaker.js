@@ -19,12 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.disabled = true
       submitBtn.textContent = "Saving application to JSON…"
 
-      const formData = new FormData(form)
+      const application = Object.fromEntries(new FormData(form).entries())
 
       try {
         const response = await fetch("/api/caretaker", {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(application),
         })
 
         const data = await response.json()
