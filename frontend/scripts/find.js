@@ -1115,6 +1115,20 @@ function renderBookingStep() {
         <p style="font-size:0.8rem; color:var(--text-muted);">Provide the exact address where caretaker care will be delivered.</p>
       </div>
 
+      <!-- External Postal API Auto-fill (Evaluation Parameter 1) -->
+      <div style="margin-bottom:0.75rem; background:#f8fafc; border:1px solid var(--border-color); border-radius:0.5rem; padding:0.6rem 0.75rem;">
+        <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-main); margin-bottom:0.25rem;">
+          📍 Auto-fill Address by Pincode (India Post External API)
+        </label>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="booking-pincode-input" maxlength="6" class="hero-input-field" placeholder="Enter 6-digit PIN (e.g. 560034)" style="flex:1; padding:0.4rem 0.6rem; font-size:0.8rem; border-radius:0.4rem; border:1px solid var(--border-color);">
+          <button type="button" class="btn btn-outline" style="padding:0.4rem 0.75rem; font-size:0.75rem; font-weight:700;" onclick="handleLookupPincode()">
+            Lookup PIN ➔
+          </button>
+        </div>
+        <div id="pincode-feedback" style="font-size:0.72rem; margin-top:0.3rem; font-weight:600;"></div>
+      </div>
+
       <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;">
         Service Location / Address <span style="color:#ef4444;">*</span>
       </label>
@@ -1248,6 +1262,59 @@ window.checkAddress = function (el) {
   const continueBtn = document.getElementById("wizard-continue-btn")
   if (continueBtn) {
     continueBtn.disabled = selectedBookingAddress.trim().length < 5
+  }
+}
+
+// Evaluation Parameter 1: India Post External API Pincode Lookup
+window.handleLookupPincode = async function () {
+  const pinInput = document.getElementById("booking-pincode-input")
+  const feedback = document.getElementById("pincode-feedback")
+  const addrTextarea = document.getElementById("booking-address")
+  const continueBtn = document.getElementById("wizard-continue-btn")
+  if (!pinInput || !addrTextarea) return
+
+  const pin = pinInput.value.trim()
+  if (!/^\d{6}$/.test(pin)) {
+    if (feedback) {
+      feedback.textContent = "Please enter a valid 6-digit Indian PIN code."
+      feedback.style.color = "#dc2626"
+    }
+    return
+  }
+
+  if (feedback) {
+    feedback.textContent = "Fetching location from India Post External API…"
+    feedback.style.color = "#0284c7"
+  }
+
+  try {
+    const res = await fetch(`/api/external/pincode/${pin}`)
+    const data = await res.json()
+    if (!data.ok || !data.locality) {
+      if (feedback) {
+        feedback.textContent = data.message || "No records found for this pincode."
+        feedback.style.color = "#dc2626"
+      }
+      return
+    }
+
+    const areaName = data.locality
+    const district = data.district
+    const state = data.state
+    const autoAddress = `${areaName}, ${district}, ${state} - ${pin}`
+    addrTextarea.value = autoAddress
+    selectedBookingAddress = autoAddress
+    if (continueBtn) continueBtn.disabled = false
+
+    if (feedback) {
+      feedback.textContent = `✓ Auto-filled via India Post API: ${areaName}, ${district}, ${state}`
+      feedback.style.color = "#16a34a"
+    }
+  } catch (err) {
+    if (feedback) {
+      feedback.textContent = "Could not reach postal service. Please type address manually."
+      feedback.style.color = "#dc2626"
+    }
   }
 }
 

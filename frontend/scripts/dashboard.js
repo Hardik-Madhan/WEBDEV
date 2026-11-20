@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initDashboard()
   setupTabNavigation()
   setupProfileForm()
+  setupMongoCrudControls()
 })
 
 async function initDashboard() {
@@ -60,6 +61,7 @@ async function initDashboard() {
     // Render stats and lists
     renderStats()
     renderBookings()
+    loadWeatherAdvisory()
 
     if (loadingIndicator) loadingIndicator.style.display = "none"
     if (mainContent) mainContent.style.display = "block"
@@ -99,6 +101,10 @@ function switchTab(tabName) {
   document.querySelectorAll(".dash-section-panel").forEach((panel) => {
     panel.style.display = panel.id === `section-${tabName.toLowerCase().replace(" ", "-")}` ? "block" : "none"
   })
+
+  if (tabName === "MongoDB") {
+    loadMongoAtlasData()
+  }
 }
 
 function renderStats() {
@@ -202,5 +208,279 @@ function setupProfileForm() {
         }
       }
     })
+  }
+}
+
+// ==============================================================================
+//  PARAMETER 1: EXTERNAL WEATHER API ADVISORY (Open-Meteo)
+// ==============================================================================
+async function loadWeatherAdvisory() {
+  const cityEl = document.getElementById("weather-city")
+  const detailsEl = document.getElementById("weather-temp-details")
+  const badgeEl = document.getElementById("weather-advisory-badge")
+
+  if (!cityEl) return
+
+  try {
+    const res = await fetch("/api/external/weather")
+    const data = await res.json()
+
+    if (data.ok) {
+      cityEl.textContent = `${data.city} Weather`
+      detailsEl.textContent = `${data.temperature}°C · Humidity ${data.humidity}% · Wind ${data.windSpeed} km/h`
+      badgeEl.textContent = `Outdoor Safety: ${data.advisory}`
+      badgeEl.style.background = data.statusColor || "#10b981"
+    } else {
+      detailsEl.textContent = "Weather service currently updating."
+    }
+  } catch (err) {
+    detailsEl.textContent = "External weather advisory available on refresh."
+  }
+}
+
+// ==============================================================================
+//  PARAMETER 4: MONGODB ATLAS CLOUD CRUD OPERATIONS
+// ==============================================================================
+function setupMongoCrudControls() {
+  const toggleBtn = document.getElementById("mongo-toggle-create-btn")
+  const cancelBtn = document.getElementById("m-cancel-create-btn")
+  const createCard = document.getElementById("mongo-create-card")
+  const createForm = document.getElementById("mongo-create-form")
+  const refreshBtn = document.getElementById("mongo-refresh-btn")
+
+  if (toggleBtn && createCard) {
+    toggleBtn.addEventListener("click", () => {
+      const isClosed = createCard.style.display === "none" || !createCard.style.display
+      createCard.style.display = isClosed ? "block" : "none"
+      if (isClosed) {
+        // Pre-fill date to today
+        const dateInput = document.getElementById("m-date")
+        if (dateInput && !dateInput.value) {
+          dateInput.value = new Date().toISOString().split("T")[0]
+        }
+        if (currentUser) {
+          const fnInput = document.getElementById("m-family-name")
+          const feInput = document.getElementById("m-family-email")
+          if (fnInput && !fnInput.value) fnInput.value = currentUser.name
+          if (feInput && !feInput.value) feInput.value = currentUser.email
+        }
+      }
+    })
+  }
+
+  if (cancelBtn && createCard) {
+    cancelBtn.addEventListener("click", () => {
+      createCard.style.display = "none"
+    })
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", () => {
+      loadMongoAtlasData()
+    })
+  }
+
+  // Handle Document Creation (CREATE - C)
+  if (createForm) {
+    createForm.addEventListener("submit", async (e) => {
+      e.preventDefault()
+      const feedback = document.getElementById("m-create-feedback")
+      if (feedback) feedback.textContent = "Saving document to MongoDB Atlas…"
+
+      const payload = {
+        caretakerName: document.getElementById("m-caretaker-name").value.trim(),
+        familyName: document.getElementById("m-family-name").value.trim(),
+        familyEmail: document.getElementById("m-family-email").value.trim(),
+        date: document.getElementById("m-date").value,
+        time: document.getElementById("m-time").value.trim(),
+        durationHours: Number(document.getElementById("m-duration").value) || 4,
+        estimatedTotal: Number(document.getElementById("m-total").value) || 1400,
+        address: document.getElementById("m-address").value.trim(),
+        status: document.getElementById("m-status").value,
+        source: "Dashboard MongoDB CRUD Manager",
+      }
+
+      try {
+        const res = await fetch("/api/mongo/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || "Failed to create document in MongoDB Atlas.")
+        }
+
+        if (feedback) {
+          feedback.textContent = `Document saved in MongoDB Atlas! (ID: ${data.booking.bookingId})`
+          feedback.style.color = "var(--success)"
+        }
+
+        // Reload the table and hide form after brief moment
+        loadMongoAtlasData()
+        setTimeout(() => {
+          createForm.reset()
+          if (createCard) createCard.style.display = "none"
+          if (feedback) feedback.textContent = ""
+        }, 1200)
+      } catch (err) {
+        if (feedback) {
+          feedback.textContent = err.message
+          feedback.style.color = "var(--destructive)"
+        }
+      }
+    })
+  }
+}
+
+// Read all documents from MongoDB Atlas (READ - R)
+async function loadMongoAtlasData() {
+  const tbody = document.getElementById("mongo-documents-tbody")
+  const countLabel = document.getElementById("mongo-count-label")
+  const healthText = document.getElementById("mongo-health-text")
+
+  // 1. Check health
+  try {
+    const healthRes = await fetch("/api/mongo/bookings/status/health")
+    const healthData = await healthRes.json()
+    if (healthData.ok && healthText) {
+      healthText.textContent = `Connected to ${healthData.cluster} / ${healthData.database} (Mongoose State: Connected)`
+    }
+  } catch {
+    if (healthText) healthText.textContent = "Connecting to MongoDB Atlas…"
+  }
+
+  // 2. Fetch bookings
+  if (!tbody) return
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7" style="padding:1.5rem; text-align:center; color:var(--text-muted);">
+        Fetching live documents from MongoDB Atlas…
+      </td>
+    </tr>
+  `
+
+  try {
+    const res = await fetch("/api/mongo/bookings")
+    const data = await res.json()
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "Failed to fetch documents from MongoDB Atlas.")
+    }
+
+    const bookings = data.bookings || []
+    if (countLabel) countLabel.textContent = `${bookings.length} document${bookings.length === 1 ? "" : "s"}`
+
+    if (bookings.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" style="padding:2.5rem; text-align:center; color:var(--text-muted);">
+            <div style="font-size:1.5rem; margin-bottom:0.5rem;">🍃</div>
+            <p style="font-weight:700; color:var(--text-main);">No documents in MongoDB collection yet.</p>
+            <p style="font-size:0.75rem; margin-top:0.25rem;">Click <strong>+ Insert Document (Create)</strong> above to create your first document in MongoDB Atlas!</p>
+          </td>
+        </tr>
+      `
+      return
+    }
+
+    tbody.innerHTML = bookings
+      .map((b) => {
+        const id = b._id || b.bookingId
+        const displayId = b.bookingId || String(b._id).slice(-8)
+        const dateStr = b.date ? new Date(b.date).toLocaleDateString("en-IN", { dateStyle: "medium" }) : "N/A"
+        const statusColors = {
+          Pending: "background:#fef3c7; color:#b45309;",
+          Confirmed: "background:#d1fae5; color:#065f46;",
+          Completed: "background:#e0f2fe; color:#0369a1;",
+          Cancelled: "background:#fee2e2; color:#b91c1c;",
+        }
+        const badgeStyle = statusColors[b.status] || "background:#f1f5f9; color:#475569;"
+
+        return `
+          <tr style="border-bottom:1px solid var(--border-color); vertical-align:middle;">
+            <td style="padding:0.75rem; font-family:monospace; font-weight:700; color:var(--primary); font-size:0.78rem;">
+              ${displayId}
+            </td>
+            <td style="padding:0.75rem;">
+              <strong style="display:block; color:var(--text-main);">${b.caretakerName || "Caregiver"}</strong>
+              <span style="font-size:0.72rem; color:var(--text-muted);">${b.source || "Atlas"}</span>
+            </td>
+            <td style="padding:0.75rem;">
+              <strong style="display:block;">${b.familyName || "Family"}</strong>
+              <span style="font-size:0.72rem; color:var(--text-muted);">${b.familyEmail || ""}</span>
+            </td>
+            <td style="padding:0.75rem;">
+              <span>${dateStr}</span>
+              <span style="display:block; font-size:0.72rem; color:var(--text-muted);">${b.time || ""} (${b.durationHours || 4} hrs)</span>
+            </td>
+            <td style="padding:0.75rem; font-weight:700; color:var(--text-main);">
+              ₹${b.estimatedTotal || 1400}
+            </td>
+            <td style="padding:0.75rem;">
+              <span style="display:inline-block; font-size:0.72rem; font-weight:700; padding:0.2rem 0.55rem; border-radius:9999px; ${badgeStyle}">
+                ${b.status || "Pending"}
+              </span>
+            </td>
+            <td style="padding:0.75rem; text-align:right;">
+              <div style="display:inline-flex; align-items:center; gap:0.4rem;">
+                <select style="font-size:0.75rem; padding:0.25rem 0.4rem; border:1px solid var(--border-color); border-radius:0.4rem; background:#fff;" onchange="updateMongoBookingStatus('${id}', this.value)" title="Update Status (Express PUT)">
+                  <option value="Pending" ${b.status === "Pending" ? "selected" : ""}>Pending</option>
+                  <option value="Confirmed" ${b.status === "Confirmed" ? "selected" : ""}>Confirmed</option>
+                  <option value="Completed" ${b.status === "Completed" ? "selected" : ""}>Completed</option>
+                  <option value="Cancelled" ${b.status === "Cancelled" ? "selected" : ""}>Cancelled</option>
+                </select>
+                <button type="button" class="btn btn-outline" style="color:#dc2626; border-color:#fca5a5; padding:0.25rem 0.55rem; font-size:0.75rem;" onclick="deleteMongoBooking('${id}')" title="Delete from Atlas (Express DELETE)">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        `
+      })
+      .join("")
+  } catch (err) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="padding:1.5rem; text-align:center; color:var(--destructive);">
+          Could not load data from MongoDB Atlas: ${err.message}
+        </td>
+      </tr>
+    `
+  }
+}
+
+// Update Document in MongoDB Atlas (UPDATE - U)
+window.updateMongoBookingStatus = async function (id, newStatus) {
+  try {
+    const res = await fetch(`/api/mongo/bookings/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: newStatus }),
+    })
+    const data = await res.json()
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "Failed to update document.")
+    }
+    loadMongoAtlasData()
+  } catch (err) {
+    loadMongoAtlasData()
+  }
+}
+
+// Delete Document from MongoDB Atlas (DELETE - D)
+window.deleteMongoBooking = async function (id) {
+  try {
+    const res = await fetch(`/api/mongo/bookings/${id}`, {
+      method: "DELETE",
+    })
+    const data = await res.json()
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || "Failed to delete document.")
+    }
+    loadMongoAtlasData()
+  } catch (err) {
+    loadMongoAtlasData()
   }
 }

@@ -1,138 +1,123 @@
 // ==============================================================================
-//  ROUTE: /api/account (Corresponds to: login.html, signup.html & dashboard.html)
+//  EXPRESS ROUTE: /api/account (Corresponds to: login.html, signup.html & dashboard.html)
 //  File: backend/routes/auth.js
-//  Purpose: Handles user registration, authentication, sessions, and profile updates
+//  Purpose: Handles user registration, authentication, sessions, and profile updates in JSON
 // ==============================================================================
 
+const express = require("express")
+const router = express.Router()
 const crypto = require("crypto")
 const { readJson, writeJson, getCurrentUser } = require("../db")
 
-function handleAuth(req, res, pathname, method, parsedBody, sendJson) {
-  if (pathname !== "/api/account") return false
+// POST /api/account: Handles Login, Sign Up, and Logout
+router.post("/", (req, res) => {
+  const action = req.body.action
 
-  // POST /api/account: Handles Login, Sign Up, and Logout
-  if (method === "POST") {
-    const action = parsedBody.action
-
-    // A. Logout
-    if (action === "logout") {
-      sendJson(200, { ok: true }, {
-        "Set-Cookie": "care_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT",
-      })
-      return true
-    }
-
-    // B. Login
-    if (action === "login") {
-      const email = String(parsedBody.email || "").trim().toLowerCase()
-      const password = String(parsedBody.password || "")
-
-      const users = readJson("users.json")
-      const user = users.find((u) => u.email.toLowerCase() === email)
-
-      if (!user) {
-        sendJson(404, { error: "No account exists with this email. Please sign up first." })
-        return true
-      }
-
-      if (user.password !== password) {
-        sendJson(401, { error: "Incorrect password. Please verify and try again." })
-        return true
-      }
-
-      const token = crypto.randomBytes(32).toString("hex")
-      const sessions = readJson("sessions.json")
-      sessions.push({ token, userId: user.id, expires: Date.now() + 7 * 86400000 })
-      writeJson("sessions.json", sessions)
-
-      sendJson(200, { user: { id: user.id, name: user.name, email: user.email } }, {
-        "Set-Cookie": `care_session=${token}; Path=/; HttpOnly; SameSite=Lax`,
-      })
-      return true
-    }
-
-    // C. Sign Up
-    if (action === "signup") {
-      const { name, phone, location, careNeeds, email, password } = parsedBody
-
-      if (!name || !email || !password || String(password).length < 8) {
-        sendJson(422, { error: "Please fill in valid details. Passwords must be at least 8 characters." })
-        return true
-      }
-
-      const users = readJson("users.json")
-      if (users.some((u) => u.email.toLowerCase() === String(email).trim().toLowerCase())) {
-        sendJson(409, { error: "An account with this email already exists." })
-        return true
-      }
-
-      const newUser = {
-        id: crypto.randomUUID(),
-        name: String(name).trim(),
-        phone: String(phone).trim(),
-        location: String(location).trim(),
-        careNeeds: String(careNeeds || "").trim(),
-        email: String(email).trim().toLowerCase(),
-        password: String(password),
-        saved: [],
-      }
-
-      users.push(newUser)
-      writeJson("users.json", users)
-
-      const token = crypto.randomBytes(32).toString("hex")
-      const sessions = readJson("sessions.json")
-      sessions.push({ token, userId: newUser.id, expires: Date.now() + 7 * 86400000 })
-      writeJson("sessions.json", sessions)
-
-      sendJson(201, { user: { id: newUser.id, name: newUser.name, email: newUser.email } }, {
-        "Set-Cookie": `care_session=${token}; Path=/; HttpOnly; SameSite=Lax`,
-      })
-      return true
-    }
+  // A. Logout
+  if (action === "logout") {
+    res.setHeader("Set-Cookie", "care_session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT")
+    return res.json({ ok: true })
   }
 
-  // GET /api/account: Check current user session (used by dashboard.html)
-  if (method === "GET") {
-    const user = getCurrentUser(req)
-    sendJson(200, {
-      user: user
-        ? {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            location: user.location,
-            careNeeds: user.careNeeds,
-            saved: user.saved || [],
-          }
-        : null,
-    })
-    return true
-  }
+  // B. Login
+  if (action === "login") {
+    const email = String(req.body.email || "").trim().toLowerCase()
+    const password = String(req.body.password || "")
 
-  // PATCH /api/account: Update user profile
-  if (method === "PATCH") {
-    const user = getCurrentUser(req)
+    const users = readJson("users.json")
+    const user = users.find((u) => u.email.toLowerCase() === email)
+
     if (!user) {
-      sendJson(401, { error: "Please log in." })
-      return true
+      return res.status(404).json({ error: "No account exists with this email. Please sign up first." })
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ error: "Incorrect password. Please verify and try again." })
+    }
+
+    const token = crypto.randomBytes(32).toString("hex")
+    const sessions = readJson("sessions.json")
+    sessions.push({ token, userId: user.id, expires: Date.now() + 7 * 86400000 })
+    writeJson("sessions.json", sessions)
+
+    res.setHeader("Set-Cookie", `care_session=${token}; Path=/; HttpOnly; SameSite=Lax`)
+    return res.json({ user: { id: user.id, name: user.name, email: user.email } })
+  }
+
+  // C. Sign Up
+  if (action === "signup") {
+    const { name, phone, location, careNeeds, email, password } = req.body
+
+    if (!name || !email || !password || String(password).length < 8) {
+      return res.status(422).json({ error: "Please fill in valid details. Passwords must be at least 8 characters." })
     }
 
     const users = readJson("users.json")
-    const target = users.find((u) => u.id === user.id)
-    if (target) {
-      if (parsedBody.name) target.name = parsedBody.name
-      if (parsedBody.phone) target.phone = parsedBody.phone
-      if (parsedBody.location) target.location = parsedBody.location
-      if (parsedBody.careNeeds !== undefined) target.careNeeds = parsedBody.careNeeds
-      writeJson("users.json", users)
+    if (users.some((u) => u.email.toLowerCase() === String(email).trim().toLowerCase())) {
+      return res.status(409).json({ error: "An account with this email already exists." })
     }
-    sendJson(200, { user: target })
-    return true
+
+    const newUser = {
+      id: crypto.randomUUID(),
+      name: String(name).trim(),
+      phone: String(phone || "").trim(),
+      location: String(location || "Bengaluru").trim(),
+      careNeeds: String(careNeeds || "").trim(),
+      email: String(email).trim().toLowerCase(),
+      password: String(password),
+      saved: [],
+    }
+
+    users.push(newUser)
+    writeJson("users.json", users)
+
+    const token = crypto.randomBytes(32).toString("hex")
+    const sessions = readJson("sessions.json")
+    sessions.push({ token, userId: newUser.id, expires: Date.now() + 7 * 86400000 })
+    writeJson("sessions.json", sessions)
+
+    res.setHeader("Set-Cookie", `care_session=${token}; Path=/; HttpOnly; SameSite=Lax`)
+    return res.status(201).json({ user: { id: newUser.id, name: newUser.name, email: newUser.email } })
   }
 
-  return false
-}
+  res.status(400).json({ error: "Invalid action." })
+})
 
-module.exports = { handleAuth }
+// GET /api/account: Check current user session (used by dashboard.html & main.js)
+router.get("/", (req, res) => {
+  const user = getCurrentUser(req)
+  res.json({
+    user: user
+      ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          location: user.location,
+          careNeeds: user.careNeeds,
+          saved: user.saved || [],
+        }
+      : null,
+  })
+})
+
+// PATCH /api/account: Update user profile
+router.patch("/", (req, res) => {
+  const user = getCurrentUser(req)
+  if (!user) {
+    return res.status(401).json({ error: "Please log in." })
+  }
+
+  const users = readJson("users.json")
+  const target = users.find((u) => u.id === user.id)
+  if (target) {
+    if (req.body.name) target.name = req.body.name
+    if (req.body.phone) target.phone = req.body.phone
+    if (req.body.location) target.location = req.body.location
+    if (req.body.careNeeds !== undefined) target.careNeeds = req.body.careNeeds
+    writeJson("users.json", users)
+  }
+  res.json({ user: target })
+})
+
+module.exports = router

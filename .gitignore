@@ -16,9 +16,10 @@ node_modules
 
 # Ignore temp files and runtime sessions
 data/*.tmp
+**/data/sessions.json
+data/sessions.json
 Option-1-NextJS/data/*.tmp
 Option-2-Pure-HTML-CSS-JS/data/*.tmp
-data/sessions.json
 Option-1-NextJS/data/sessions.json
 Option-2-Pure-HTML-CSS-JS/data/sessions.json
 
