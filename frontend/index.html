@@ -221,6 +221,149 @@
       </div>
     </div>
 
+    <!-- Instant Urgent Caretaker Dispatch Modal (Auto-Detects 4.5+ Nearest Caregiver) -->
+    <div id="urgent-booking-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content-card" style="max-width:540px; padding:2rem; position:relative; max-height:90vh; overflow-y:auto;">
+        <button type="button" id="close-urgent-booking-x" style="position:absolute; top:1rem; right:1.25rem; background:none; border:none; font-size:1.5rem; color:var(--text-muted); cursor:pointer; line-height:1;">&times;</button>
+
+        <!-- Header & Live Pulse -->
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+          <span style="display:inline-flex; align-items:center; gap:0.35rem; background:#fee2e2; color:#b91c1c; font-weight:800; font-size:0.75rem; text-transform:uppercase; padding:0.25rem 0.65rem; border-radius:9999px;">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; animation:urgentButtonPulse 1.5s infinite;"></span>
+            🚨 Nearest 4.5★ Caregiver Matched
+          </span>
+          <span style="font-size:0.75rem; color:#059669; font-weight:700; background:#dcfce7; padding:0.25rem 0.65rem; border-radius:9999px;">
+            ⚡ Ready to Dispatch in 15 Minutes
+          </span>
+        </div>
+
+        <h2 style="font-size:1.6rem; font-weight:800; color:var(--text-main); margin-bottom:0.35rem;">
+          Confirm Urgent Care Booking
+        </h2>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1.25rem;">
+          System auto-detected the closest certified caregiver with 4.5+ rating available right now.
+        </p>
+
+        <!-- Matched Caretaker Spotlight Card -->
+        <div id="urgent-matched-caretaker-card" style="background:linear-gradient(135deg, #fff 0%, #f8fafc 100%); border:2px solid #e2e8f0; border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; gap:1rem; align-items:center; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+          <img id="urgent-caretaker-img" src="images/caretaker-1.png" alt="Caretaker" style="width:4.25rem; height:4.25rem; border-radius:50%; object-fit:cover; border:2px solid #10b981;">
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+              <h3 id="urgent-caretaker-name" style="font-size:1.15rem; font-weight:800; color:var(--text-main); margin:0;">
+                Priya Sharma
+              </h3>
+              <span id="urgent-caretaker-rating" style="background:#fef3c7; color:#b45309; font-size:0.8rem; font-weight:800; padding:0.15rem 0.5rem; border-radius:0.4rem;">
+                ⭐ 4.9 (126 reviews)
+              </span>
+            </div>
+            <p id="urgent-caretaker-meta" style="font-size:0.8rem; color:var(--text-muted); margin-top:3px;">
+              📍 <strong id="urgent-caretaker-dist">1.4 km away</strong> &bull; <span id="urgent-caretaker-loc">Koramangala</span> &bull; <span style="color:#059669; font-weight:700;">Available Today</span>
+            </p>
+            <span style="display:inline-block; font-size:0.75rem; color:#0369a1; background:#e0f2fe; padding:0.1rem 0.5rem; border-radius:9999px; font-weight:600; margin-top:4px;">
+              ✓ Background Verified Specialist
+            </span>
+          </div>
+        </div>
+
+        <!-- Booking Details Auto-Filled Grid -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-lg); padding:1rem; margin-bottom:1.25rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.85rem;">
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Service Date</span>
+            <strong id="urgent-date-display" style="color:var(--text-main);">Today</strong>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Starting Time</span>
+            <strong id="urgent-time-display" style="color:#dc2626;">Starts in 15 mins</strong>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Service Duration</span>
+            <strong id="urgent-duration-display" style="color:var(--text-main);">4 Hours (Priority Shift)</strong>
+          </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Hourly Rate</span>
+            <strong id="urgent-rate-display" style="color:var(--text-main);">₹350 / hr</strong>
+          </div>
+        </div>
+
+        <!-- Confirm Location Field -->
+        <div style="margin-bottom:1.25rem;">
+          <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">
+            📍 Confirm Care Delivery Address <span style="color:#ef4444;">*</span>
+          </label>
+          <input type="text" id="urgent-location-input" class="hero-input-field" style="width:100%; padding:0.6rem 0.75rem; font-size:0.85rem; border-radius:0.5rem; border:1px solid var(--border-color);" placeholder="Enter flat/house no, street, area, Bengaluru" required>
+          <p style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">
+            Pre-filled from your profile. Please confirm your exact door number and landmark.
+          </p>
+        </div>
+
+        <!-- Total Charge Breakdown Card -->
+        <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-lg); padding:0.85rem 1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <span style="font-size:0.72rem; font-weight:700; color:#1e40af; text-transform:uppercase; display:block;">Total Charge (4 Hours)</span>
+            <span style="font-size:0.78rem; color:#3b82f6;">Includes priority dispatch fee (₹0 waived)</span>
+          </div>
+          <div style="text-align:right;">
+            <span id="urgent-total-price" style="font-size:1.6rem; font-weight:900; color:#1d4ed8;">₹1,400</span>
+          </div>
+        </div>
+
+        <!-- Confirm & Dispatch Button -->
+        <button type="button" id="confirm-urgent-dispatch-btn" class="btn btn-primary" style="width:100%; justify-content:center; padding:0.9rem; font-weight:800; font-size:1rem; background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-color:#b91c1c; box-shadow:0 8px 20px rgba(239,68,68,0.35);">
+          🚨 Confirm &amp; Dispatch Urgently (Starts in 15 Mins) ➔
+        </button>
+        <div id="urgent-submit-feedback" style="font-size:0.82rem; font-weight:700; text-align:center; margin-top:0.6rem;"></div>
+      </div>
+    </div>
+
+    <!-- Urgent Booking Success Modal -->
+    <div id="urgent-success-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content-card" style="max-width:500px; text-align:center; padding:2.5rem 2rem; position:relative;">
+        <div style="width:4.75rem; height:4.75rem; border-radius:50%; background:#ecfdf5; border:2px solid #a7f3d0; display:inline-flex; align-items:center; justify-content:center; font-size:2.4rem; margin-bottom:1.25rem; box-shadow:0 10px 25px rgba(16,185,129,0.2);">
+          ✅
+        </div>
+
+        <span style="display:inline-block; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; background:#d1fae5; color:#065f46; padding:0.3rem 0.8rem; border-radius:9999px; margin-bottom:0.75rem;">
+          Caregiver Dispatched
+        </span>
+
+        <h2 style="font-size:1.6rem; font-weight:800; color:var(--text-main); margin-bottom:0.5rem; line-height:1.25;">
+          Urgent Care Booking Confirmed!
+        </h2>
+
+        <p id="urgent-success-msg" style="font-size:0.92rem; color:#374151; line-height:1.6; margin-bottom:1.25rem;">
+          Your caregiver is preparing to arrive at your location within 15 minutes.
+        </p>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-lg); padding:1rem; text-align:left; margin-bottom:1.5rem; font-size:0.82rem; color:#475569;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:600;">Booking ID:</span>
+            <code id="urgent-success-id" style="font-weight:700; color:var(--primary);">#CS-URG-...</code>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:600;">Assigned Caretaker:</span>
+            <strong id="urgent-success-caretaker" style="color:var(--text-main);">Priya Sharma</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:600;">Scheduled Arrival:</span>
+            <strong id="urgent-success-time" style="color:#dc2626;">Today in 15 mins</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-weight:600;">Total Charged:</span>
+            <strong id="urgent-success-total" style="color:#1d4ed8;">₹1,400</strong>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; justify-content:center;">
+          <a href="dashboard.html" class="btn btn-primary" style="padding:0.75rem 1.5rem; font-weight:700;">
+            View in Dashboard ➔
+          </a>
+          <button type="button" id="close-urgent-success-btn" class="btn btn-outline" style="padding:0.75rem 1rem;">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
 
 
     <!-- ================================================================== -->
