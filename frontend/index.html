@@ -146,20 +146,80 @@
 
 
     <!-- ================================================================== -->
-    <!-- 5. EMERGENCY CARE BANNER                                           -->
+    <!-- 5. OUTSHINING EMERGENCY CARE BANNER (Find Caretaker Urgently)      -->
     <!-- ================================================================== -->
-    <section class="container">
-      <div class="emergency-box">
-        <div>
-          <span style="color:var(--destructive); font-weight:700; font-size:0.875rem;">⚠️ URGENT SUPPORT</span>
-          <h2 style="font-size:1.875rem; font-weight:800; margin-top:0.5rem;">Need care urgently?</h2>
-          <p style="margin-top:0.5rem; color:var(--text-muted); max-width:600px;">
-            CareSure connects you with certified caregivers for scheduled and recurring home care. For immediate life-threatening medical emergencies, please dial 112 / 108.
+    <section class="container" id="emergency-section">
+      <div class="emergency-outshine-card">
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.6rem;">
+            <span style="display:inline-flex; align-items:center; gap:0.35rem; background:#fee2e2; color:#b91c1c; font-weight:800; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; padding:0.25rem 0.65rem; border-radius:9999px; border:1px solid #fca5a5;">
+              <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; animation:urgentButtonPulse 1.5s infinite;"></span>
+              🚨 24/7 Priority Urgent Dispatch
+            </span>
+            <span id="urgent-lock-badge" style="display:inline-flex; align-items:center; font-size:0.75rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:9999px; background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; transition:all 0.3s ease;">
+              🔒 Locked · Login Required
+            </span>
+          </div>
+
+          <h2 style="font-size:2rem; font-weight:900; color:#0f172a; margin-top:0.25rem; letter-spacing:-0.02em;">
+            Find Caretaker Urgently
+          </h2>
+
+          <p style="margin-top:0.6rem; color:#475569; font-size:0.95rem; line-height:1.6; max-width:640px;">
+            Need immediate caregiver assistance for an elder, post-hospital discharge, or family crisis? Connect instantly with verified caregivers available today across Bengaluru with prioritized same-day dispatch.
+          </p>
+
+          <p style="margin-top:0.35rem; font-size:0.78rem; color:#94a3b8;">
+            *For acute life-threatening hospital emergencies, always dial 112 / 108 first.
           </p>
         </div>
-        <a href="find.html" class="btn btn-outline" style="border-color:var(--destructive); color:var(--destructive);">Browse Sample Care Profiles</a>
+
+        <div style="text-align:right;">
+          <button id="urgent-caretaker-btn" type="button" class="urgent-cta-btn locked" data-unlocked="false">
+            <span id="urgent-btn-icon">🔒</span>
+            <span id="urgent-btn-text">Find Caretaker Urgently</span>
+          </button>
+          <p id="urgent-btn-sub" style="font-size:0.75rem; color:#94a3b8; margin-top:0.4rem; text-align:center;">
+            Exclusive verified member feature
+          </p>
+        </div>
       </div>
     </section>
+
+    <!-- Emergency Feature Locked Popup Modal -->
+    <div id="urgent-auth-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content-card" style="max-width:500px; text-align:center; padding:2.5rem 2rem; position:relative;">
+        <button type="button" id="close-urgent-modal-x" style="position:absolute; top:1rem; right:1.25rem; background:none; border:none; font-size:1.5rem; color:var(--text-muted); cursor:pointer; line-height:1;">&times;</button>
+        
+        <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:#fee2e2; border:2px solid #fca5a5; display:inline-flex; align-items:center; justify-content:center; font-size:2.2rem; margin-bottom:1.25rem; box-shadow:0 10px 25px rgba(239,68,68,0.2);">
+          🔒
+        </div>
+
+        <span style="display:inline-block; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; background:#fee2e2; color:#991b1b; padding:0.3rem 0.8rem; border-radius:9999px; margin-bottom:0.75rem;">
+          Authentication Required
+        </span>
+
+        <h2 style="font-size:1.55rem; font-weight:800; color:var(--text-main); margin-bottom:0.75rem; line-height:1.25;">
+          Login to Unlock Urgent Caretaker Dispatch
+        </h2>
+
+        <p style="font-size:0.92rem; color:#4b5563; line-height:1.6; margin-bottom:1.5rem;">
+          To request immediate same-day caregiver dispatch and priority booking, you need an active CareSure family account. Please log in to unlock this feature.
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.65rem;">
+          <a href="login.html?redirect=urgent" class="btn btn-primary" style="padding:0.8rem; font-weight:700; justify-content:center; background:#dc2626; border-color:#dc2626;">
+            🔑 Log In to Unlock ➔
+          </a>
+          <a href="signup.html?redirect=urgent" class="btn btn-outline" style="padding:0.75rem; justify-content:center; font-weight:600;">
+            Create Free Account
+          </a>
+          <button type="button" id="close-urgent-modal-btn" class="btn" style="background:transparent; color:var(--text-muted); padding:0.4rem; font-size:0.85rem;">
+            Cancel / Go Back
+          </button>
+        </div>
+      </div>
+    </div>
 
 
 

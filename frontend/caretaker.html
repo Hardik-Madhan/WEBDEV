@@ -73,9 +73,57 @@
       <span style="font-size:2.5rem;">✅</span>
       <h2 class="caretaker-card-title">Application Saved!</h2>
       <p class="caretaker-card-text">
-        Your application is stored locally in <code>data/caretaker-applications.json</code>. Your profile is now visible in the local directory, and care requests will appear in your dashboard.
+        Your application is stored locally in <code>data/caretaker-applications.json</code> and MongoDB Atlas. Your profile is now under review, and soon our team will contact you to book your training slot.
       </p>
       <a href="dashboard.html" class="caretaker-link-primary">Go to your dashboard →</a>
+    </div>
+
+    <!-- Caretaker Application Success Popup Modal -->
+    <div id="caretaker-app-modal" class="modal-overlay" style="display:none;">
+      <div class="modal-content-card" style="max-width:520px; text-align:center; padding:2.5rem 2rem; position:relative;">
+        <button type="button" id="close-caretaker-modal-x" style="position:absolute; top:1rem; right:1.25rem; background:none; border:none; font-size:1.5rem; color:var(--text-muted); cursor:pointer; line-height:1;">&times;</button>
+        
+        <div style="width:4.5rem; height:4.5rem; border-radius:50%; background:#ecfdf5; border:2px solid #a7f3d0; display:inline-flex; align-items:center; justify-content:center; font-size:2.2rem; margin-bottom:1.25rem; box-shadow:0 10px 25px rgba(16,185,129,0.2);">
+          🎉
+        </div>
+
+        <span style="display:inline-block; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; background:#d1fae5; color:#065f46; padding:0.3rem 0.8rem; border-radius:9999px; margin-bottom:0.75rem;">
+          Application Submitted
+        </span>
+
+        <h2 style="font-size:1.55rem; font-weight:800; color:var(--text-main); margin-bottom:0.75rem; line-height:1.25;">
+          Application Completed Successfully!
+        </h2>
+
+        <p style="font-size:0.95rem; color:#374151; line-height:1.6; margin-bottom:1.25rem;">
+          Your application is completed successfully and soon our team will contact you to book your training slot.
+        </p>
+
+        <!-- Informational Status Card -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-lg); padding:1rem; text-align:left; margin-bottom:1.5rem; font-size:0.82rem; color:#475569;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:600;">Application Status:</span>
+            <strong style="color:#059669;">● Pending Training Slot Booking</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; padding-bottom:0.4rem; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:600;">Next Step:</span>
+            <span>Phone verification &amp; 30-min training session</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-weight:600;">Reference ID:</span>
+            <code id="modal-app-id" style="font-weight:700; color:var(--primary);">#CS-APP-PENDING</code>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap;">
+          <button type="button" id="close-caretaker-modal-btn" class="btn btn-primary" style="padding:0.75rem 1.5rem; font-weight:700;">
+            Got it, Thank You! ✓
+          </button>
+          <a href="dashboard.html" class="btn btn-outline" style="padding:0.75rem 1.25rem;">
+            Go to Dashboard ➔
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Caretaker Application Form -->

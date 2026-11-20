@@ -10,6 +10,7 @@ const User = require("./models/User")
 const Caretaker = require("./models/Caretaker")
 const Booking = require("./models/Booking")
 const Contact = require("./models/Contact")
+const CaretakerApplication = require("./models/CaretakerApplication")
 
 function readJsonFile(filename) {
   const filePath = path.join(__dirname, "data", filename)
@@ -125,6 +126,30 @@ async function syncAllDataToMongo() {
       contactCount++
     }
     console.log(`✅ Contacts Synced to Atlas: ${contactCount} contacts`)
+
+    // 5. Sync Caretaker Applications
+    const apps = readJsonFile("caretaker-applications.json")
+    let appCount = 0
+    for (const a of apps) {
+      await CaretakerApplication.findOneAndUpdate(
+        { applicationId: a.id },
+        {
+          applicationId: a.id,
+          name: a.name || "Applicant",
+          email: a.email || "",
+          phone: a.phone || "",
+          experience: a.experience || "",
+          rate: a.rate || "",
+          location: a.location || "Bengaluru",
+          skills: Array.isArray(a.skills) ? a.skills : [a.skills].filter(Boolean),
+          status: a.status || "Submitted",
+          trainingSlotStatus: a.trainingSlotStatus || "Pending Slot Booking",
+        },
+        { upsert: true, returnDocument: "after" }
+      )
+      appCount++
+    }
+    console.log(`✅ Caretaker Applications Synced to Atlas: ${appCount} applications`)
 
     console.log("🎉 All CareSure data successfully uploaded to MongoDB Atlas (caresure)!")
   } catch (err) {

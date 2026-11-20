@@ -348,7 +348,7 @@ let selectedBookingAddress = ""
 let lastSubmittedBooking = null
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Check URL query parameters (e.g. find.html?care=Elderly+Care)
+  // Check URL query parameters (e.g. find.html?care=Elderly+Care or ?urgent=true)
   const urlParams = new URLSearchParams(window.location.search)
   const careParam = urlParams.get("care")
   if (careParam) {
@@ -356,6 +356,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const careSelect = document.getElementById("search-care-type")
     if (careSelect) careSelect.value = careParam
   }
+
+  const urgentParam = urlParams.get("urgent") === "true"
+  if (urgentParam) {
+    currentFilters.urgentOnly = true
+    const urgentBanner = document.getElementById("urgent-dispatch-banner")
+    if (urgentBanner) urgentBanner.style.display = "block"
+  }
+
+  document.getElementById("clear-urgent-filter-btn")?.addEventListener("click", () => {
+    currentFilters.urgentOnly = false
+    const urgentBanner = document.getElementById("urgent-dispatch-banner")
+    if (urgentBanner) urgentBanner.style.display = "none"
+    renderCaretakers()
+  })
 
   // Check user authentication status from backend
   await checkAuthStatus()
@@ -526,9 +540,17 @@ function renderCaretakers() {
     const matchDist = typeof c.distance === "number" ? c.distance <= currentFilters.maxDistance : true
     const matchRating = typeof c.rating === "number" ? c.rating >= currentFilters.minRating : true
     const matchExp = typeof c.experience === "number" ? c.experience >= currentFilters.minExperience : true
+    const matchUrgent = currentFilters.urgentOnly
+      ? typeof c.availability === "string" && c.availability.toLowerCase().includes("today")
+      : true
 
-    return matchType && matchLocation && matchDist && matchRating && matchExp
+    return matchType && matchLocation && matchDist && matchRating && matchExp && matchUrgent
   })
+
+  // Prioritize nearest caregivers in urgent mode
+  if (currentFilters.urgentOnly) {
+    filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0))
+  }
 
   lastFiltered = filtered
   if (countBadge) countBadge.textContent = filtered.length
@@ -1217,7 +1239,11 @@ window.adjustHours = function (delta) {
 
 window.selectTime = function (timeStr) {
   if (!isTimeSlotAvailable(timeStr, selectedBookingDate)) {
-    alert("For today's booking, the starting time must be at least 1 hour in advance.")
+    const errBox = document.getElementById("custom-time-error")
+    if (errBox) {
+      errBox.textContent = "For today's booking, the starting time must be at least 1 hour in advance."
+      errBox.style.display = "block"
+    }
     return
   }
   selectedBookingTime = timeStr

@@ -175,6 +175,27 @@
 
       <!-- Results Container: Renders dynamic cards -->
       <div style="flex:1;">
+        <!-- Emergency / Urgent Dispatch Banner (Activated when ?urgent=true) -->
+        <div id="urgent-dispatch-banner" style="display:none; margin-bottom:1.25rem; background:linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%); border:2px solid #f87171; border-radius:var(--radius-lg); padding:1rem 1.25rem; box-shadow:0 6px 20px rgba(239, 68, 68, 0.12);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+              <span style="font-size:1.8rem;">🚨</span>
+              <div>
+                <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                  <strong style="color:#991b1b; font-size:1rem;">Priority Urgent Dispatch Mode Active</strong>
+                  <span style="font-size:0.7rem; font-weight:800; background:#fee2e2; color:#b91c1c; padding:0.15rem 0.5rem; border-radius:9999px;">Same-Day Service</span>
+                </div>
+                <p style="font-size:0.82rem; color:#475569; margin-top:2px;">
+                  Showing certified caregivers available <strong>Today</strong> with prioritized dispatch in Bengaluru.
+                </p>
+              </div>
+            </div>
+            <button type="button" id="clear-urgent-filter-btn" class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.75rem; border-color:#fca5a5; color:#991b1b;">
+              Clear Urgent Filter ✕
+            </button>
+          </div>
+        </div>
+
         <div id="caretakers-grid" class="caretakers-grid">
           <!-- Populated dynamically by scripts/find.js -->
         </div>

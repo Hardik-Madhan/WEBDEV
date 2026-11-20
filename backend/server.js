@@ -26,6 +26,7 @@ const UserModel = require("./models/User")
 const CaretakerModel = require("./models/Caretaker")
 const BookingModel = require("./models/Booking")
 const ContactModel = require("./models/Contact")
+const CaretakerAppModel = require("./models/CaretakerApplication")
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -71,11 +72,12 @@ app.get("/api/mongo/status", async (req, res) => {
     return res.status(503).json({ ok: false, status: "Disconnected" })
   }
   try {
-    const [usersCount, caretakersCount, bookingsCount, contactsCount] = await Promise.all([
+    const [usersCount, caretakersCount, bookingsCount, contactsCount, appsCount] = await Promise.all([
       UserModel.countDocuments(),
       CaretakerModel.countDocuments(),
       BookingModel.countDocuments(),
       ContactModel.countDocuments(),
+      CaretakerAppModel.countDocuments(),
     ])
     res.json({
       ok: true,
@@ -86,6 +88,7 @@ app.get("/api/mongo/status", async (req, res) => {
         caretakers: caretakersCount,
         bookings: bookingsCount,
         contacts: contactsCount,
+        caretakerApplications: appsCount,
       },
     })
   } catch (err) {
