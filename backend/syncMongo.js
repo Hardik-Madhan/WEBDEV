@@ -9,6 +9,7 @@ const fs = require("fs")
 const User = require("./models/User")
 const Caretaker = require("./models/Caretaker")
 const Booking = require("./models/Booking")
+const Contact = require("./models/Contact")
 
 function readJsonFile(filename) {
   const filePath = path.join(__dirname, "data", filename)
@@ -104,6 +105,26 @@ async function syncAllDataToMongo() {
       bookingCount++
     }
     console.log(`✅ Bookings Synced to Atlas: ${bookingCount} bookings`)
+
+    // 4. Sync Contacts
+    const contacts = readJsonFile("contacts.json")
+    let contactCount = 0
+    for (const c of contacts) {
+      await Contact.findOneAndUpdate(
+        { contactId: c.id },
+        {
+          contactId: c.id,
+          name: c.name,
+          email: c.email,
+          phone: c.phone || "",
+          subject: c.topic || c.subject || "General Inquiry",
+          message: c.message,
+        },
+        { upsert: true, returnDocument: "after" }
+      )
+      contactCount++
+    }
+    console.log(`✅ Contacts Synced to Atlas: ${contactCount} contacts`)
 
     console.log("🎉 All CareSure data successfully uploaded to MongoDB Atlas (caresure)!")
   } catch (err) {

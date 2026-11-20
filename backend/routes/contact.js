@@ -7,9 +7,11 @@
 const express = require("express")
 const router = express.Router()
 const crypto = require("crypto")
+const mongoose = require("mongoose")
+const Contact = require("../models/Contact")
 const { readJson, writeJson } = require("../db")
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { name, email, phone, topic, message, consent } = req.body
 
   if (!name || !email || !topic || !message) {
@@ -30,6 +32,23 @@ router.post("/", (req, res) => {
 
   contacts.push(submission)
   writeJson("contacts.json", contacts)
+
+  // Dual-save to MongoDB Atlas
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await new Contact({
+        contactId: submission.id,
+        name: submission.name,
+        email: submission.email,
+        phone: submission.phone,
+        subject: submission.topic,
+        message: submission.message,
+      }).save()
+    } catch (err) {
+      console.warn("MongoDB Contact sync note:", err.message)
+    }
+  }
+
   res.status(201).json({ ok: true, submission: { id: submission.id } })
 })
 
