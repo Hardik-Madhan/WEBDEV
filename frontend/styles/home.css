@@ -279,18 +279,22 @@
   text-decoration: none;
 }
 
-/* Locked State (Logged Out) */
+/* Locked State (Logged Out - Appears Unclickable & Shows Lock Icon) */
 .urgent-cta-btn.locked {
-  background: #ffffff;
-  color: #b91c1c;
-  border: 2px dashed #f87171;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
+  background: #f8fafc;
+  color: #64748b;
+  border: 2px dashed #cbd5e1;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  position: relative;
+  user-select: none;
 }
 
 .urgent-cta-btn.locked:hover {
-  background: #fee2e2;
-  border-style: solid;
-  transform: translateY(-1px);
+  background: #fff1f2;
+  border-color: #fca5a5;
+  color: #991b1b;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.15);
 }
 
 /* Unlocked State (Logged In) */

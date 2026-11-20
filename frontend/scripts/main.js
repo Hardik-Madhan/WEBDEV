@@ -121,9 +121,13 @@ function unlockUrgentFeature(user) {
     urgentBtn.dataset.unlocked = "true"
     urgentBtn.classList.remove("locked")
     urgentBtn.classList.add("unlocked")
-    if (btnIcon) btnIcon.textContent = "⚡"
-    if (btnText) btnText.textContent = "Find Caretaker Urgently ➔"
-    if (btnSub) btnSub.textContent = `Priority matching active for ${user.name.split(" ")[0]}`
+    if (btnIcon) {
+      btnIcon.textContent = "⚡"
+      btnIcon.style.background = "#ffffff"
+      btnIcon.style.color = "#dc2626"
+    }
+    if (btnText) btnText.textContent = "Need Urgent Care? Book Now ➔"
+    if (btnSub) btnSub.textContent = `Priority urgent booking active for ${user.name.split(" ")[0]}`
   }
 
   if (lockBadge) {
@@ -145,9 +149,13 @@ function lockUrgentFeature() {
     urgentBtn.dataset.unlocked = "false"
     urgentBtn.classList.add("locked")
     urgentBtn.classList.remove("unlocked")
-    if (btnIcon) btnIcon.textContent = "🔒"
-    if (btnText) btnText.textContent = "Find Caretaker Urgently"
-    if (btnSub) btnSub.textContent = "Tap to login & unlock urgent matching"
+    if (btnIcon) {
+      btnIcon.textContent = "🔒"
+      btnIcon.style.background = "#fee2e2"
+      btnIcon.style.color = "#991b1b"
+    }
+    if (btnText) btnText.textContent = "Need Urgent Care"
+    if (btnSub) btnSub.textContent = "Tap lock to login or signup"
   }
 
   if (lockBadge) {
