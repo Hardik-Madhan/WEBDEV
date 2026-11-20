@@ -7,6 +7,8 @@
 const express = require("express")
 const router = express.Router()
 const crypto = require("crypto")
+const mongoose = require("mongoose")
+const User = require("../models/User")
 const { readJson, writeJson, getCurrentUser } = require("../db")
 
 // POST /api/account: Handles Login, Sign Up, and Logout
@@ -71,6 +73,24 @@ router.post("/", (req, res) => {
     users.push(newUser)
     writeJson("users.json", users)
 
+    // Dual-save to MongoDB Atlas Users collection
+    if (mongoose.connection.readyState === 1) {
+      User.findOneAndUpdate(
+        { email: newUser.email },
+        {
+          userId: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          password: newUser.password,
+          phone: newUser.phone,
+          location: newUser.location,
+          careNeeds: newUser.careNeeds,
+          saved: [],
+        },
+        { upsert: true, returnDocument: "after" }
+      ).catch((err) => console.warn("MongoDB User sync note:", err.message))
+    }
+
     const token = crypto.randomBytes(32).toString("hex")
     const sessions = readJson("sessions.json")
     sessions.push({ token, userId: newUser.id, expires: Date.now() + 7 * 86400000 })
@@ -116,6 +136,20 @@ router.patch("/", (req, res) => {
     if (req.body.location) target.location = req.body.location
     if (req.body.careNeeds !== undefined) target.careNeeds = req.body.careNeeds
     writeJson("users.json", users)
+
+    // Dual-update in MongoDB Atlas
+    if (mongoose.connection.readyState === 1) {
+      User.findOneAndUpdate(
+        { userId: target.id },
+        {
+          name: target.name,
+          phone: target.phone,
+          location: target.location,
+          careNeeds: target.careNeeds,
+        },
+        { returnDocument: "after" }
+      ).catch((err) => console.warn("MongoDB User update note:", err.message))
+    }
   }
   res.json({ user: target })
 })

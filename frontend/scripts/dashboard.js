@@ -340,12 +340,18 @@ async function loadMongoAtlasData() {
   const countLabel = document.getElementById("mongo-count-label")
   const healthText = document.getElementById("mongo-health-text")
 
-  // 1. Check health
+  // 1. Check health & collections count
+  const statsEl = document.getElementById("mongo-collections-stats")
   try {
-    const healthRes = await fetch("/api/mongo/bookings/status/health")
-    const healthData = await healthRes.json()
-    if (healthData.ok && healthText) {
-      healthText.textContent = `Connected to ${healthData.cluster} / ${healthData.database} (Mongoose State: Connected)`
+    const statusRes = await fetch("/api/mongo/status")
+    const statusData = await statusRes.json()
+    if (statusData.ok) {
+      if (healthText) {
+        healthText.textContent = `Connected to ${statusData.cluster} / ${statusData.database} (Mongoose State: Connected)`
+      }
+      if (statsEl && statusData.collections) {
+        statsEl.textContent = `${statusData.collections.users} Users, ${statusData.collections.caretakers} Caretakers, ${statusData.collections.bookings} Bookings`
+      }
     }
   } catch {
     if (healthText) healthText.textContent = "Connecting to MongoDB Atlas…"

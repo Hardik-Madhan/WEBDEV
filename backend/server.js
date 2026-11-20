@@ -21,6 +21,10 @@ const contactRoutes = require("./routes/contact")
 const caretakerRoutes = require("./routes/caretakers")
 const mongoBookingRoutes = require("./routes/mongoBookings")
 const externalApiRoutes = require("./routes/externalApi")
+const { syncAllDataToMongo } = require("./syncMongo")
+const UserModel = require("./models/User")
+const CaretakerModel = require("./models/Caretaker")
+const BookingModel = require("./models/Booking")
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -37,8 +41,10 @@ const MONGODB_URI = process.env.MONGODB_URI || DEFAULT_MONGODB_URI
 if (MONGODB_URI) {
   mongoose
     .connect(MONGODB_URI)
-    .then(() => {
+    .then(async () => {
       console.log("🍃 MongoDB Atlas Connected Successfully! (Cluster0 / caresure)")
+      // Automatically sync Users, Caretakers, and Bookings into MongoDB Atlas
+      await syncAllDataToMongo()
     })
     .catch((err) => {
       console.warn("⚠️ MongoDB Atlas connection notice:", err.message)
@@ -57,6 +63,32 @@ app.use("/api/caretaker", caretakerRoutes)
 
 // Parameter 4: Complete CRUD Express APIs for MongoDB Atlas
 app.use("/api/mongo/bookings", mongoBookingRoutes)
+
+// MongoDB Atlas Collections Overview Status Endpoint
+app.get("/api/mongo/status", async (req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ ok: false, status: "Disconnected" })
+  }
+  try {
+    const [usersCount, caretakersCount, bookingsCount] = await Promise.all([
+      UserModel.countDocuments(),
+      CaretakerModel.countDocuments(),
+      BookingModel.countDocuments(),
+    ])
+    res.json({
+      ok: true,
+      database: "caresure",
+      cluster: "Cluster0",
+      collections: {
+        users: usersCount,
+        caretakers: caretakersCount,
+        bookings: bookingsCount,
+      },
+    })
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message })
+  }
+})
 
 // Parameter 1: External Public Web APIs (India Post Pincode & Open-Meteo Weather)
 app.use("/api/external", externalApiRoutes)

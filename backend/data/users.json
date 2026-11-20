@@ -31,5 +31,15 @@
     "email": "hardik12@gmail.com",
     "password": "H12345AR",
     "saved": []
+  },
+  {
+    "id": "1c94c19a-8c40-4877-9cfb-8abbfc666920",
+    "name": "Vikram Malhotra",
+    "phone": "9876501234",
+    "location": "Indiranagar, Bengaluru",
+    "careNeeds": "Senior Companionship",
+    "email": "vikram.care@example.com",
+    "password": "password123",
+    "saved": []
   }
 ]
