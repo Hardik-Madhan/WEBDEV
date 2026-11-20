@@ -9,6 +9,7 @@ let currentSessionUser = null
 let activeUrgentCaretaker = null
 let activeUrgentStartTime = ""
 let activeUrgentTotal = 1400
+let activeUrgentHours = 4
 
 document.addEventListener("DOMContentLoaded", () => {
   // 1. Mobile Menu Drawer Toggle
@@ -155,6 +156,105 @@ function setupUrgentCaretakerFeature() {
     })
   }
 
+  // Handle Duration Selector Pills (2h, 4h, 6h, 8h, 12h)
+  document.querySelectorAll(".urgent-duration-pill").forEach((pill) => {
+    pill.addEventListener("click", () => {
+      document.querySelectorAll(".urgent-duration-pill").forEach((p) => {
+        p.classList.remove("active")
+        p.style.background = "#fff"
+        p.style.color = "var(--text-main)"
+        p.style.borderColor = "var(--border-color)"
+      })
+      pill.classList.add("active")
+      pill.style.background = "var(--primary)"
+      pill.style.color = "#fff"
+      pill.style.borderColor = "var(--primary)"
+
+      activeUrgentHours = Number(pill.dataset.hours) || 4
+      const selectEl = document.getElementById("urgent-duration-select")
+      if (selectEl) selectEl.value = String(activeUrgentHours)
+
+      updateUrgentCalculation()
+    })
+  })
+
+  // Handle Custom Duration Select Dropdown
+  const durationSelect = document.getElementById("urgent-duration-select")
+  if (durationSelect) {
+    durationSelect.addEventListener("change", (e) => {
+      activeUrgentHours = Number(e.target.value) || 4
+
+      document.querySelectorAll(".urgent-duration-pill").forEach((p) => {
+        const isMatch = Number(p.dataset.hours) === activeUrgentHours
+        p.classList.toggle("active", isMatch)
+        p.style.background = isMatch ? "var(--primary)" : "#fff"
+        p.style.color = isMatch ? "#fff" : "var(--text-main)"
+        p.style.borderColor = isMatch ? "var(--primary)" : "var(--border-color)"
+      })
+
+      updateUrgentCalculation()
+    })
+  }
+
+  // Handle Profile Address Auto-Fill
+  const locateBtn = document.getElementById("urgent-locate-btn")
+  if (locateBtn) {
+    locateBtn.addEventListener("click", () => {
+      const locInput = document.getElementById("urgent-location-input")
+      if (locInput) {
+        locInput.value = currentSessionUser ? (currentSessionUser.location || "Flat 302, Green Glen Layout, Bellandur, Bengaluru") : "Flat 302, Green Glen Layout, Bellandur, Bengaluru"
+      }
+    })
+  }
+
+  // Handle India Post PIN Code Auto-Lookup
+  const pinBtn = document.getElementById("urgent-pincode-btn")
+  if (pinBtn) {
+    pinBtn.addEventListener("click", async () => {
+      const pinInput = document.getElementById("urgent-pincode-input")
+      const feedback = document.getElementById("urgent-pincode-feedback")
+      const locInput = document.getElementById("urgent-location-input")
+      if (!pinInput || !locInput) return
+
+      const pin = pinInput.value.trim()
+      if (!/^\d{6}$/.test(pin)) {
+        if (feedback) {
+          feedback.textContent = "Enter valid 6-digit PIN"
+          feedback.style.color = "#dc2626"
+        }
+        return
+      }
+
+      if (feedback) {
+        feedback.textContent = "Fetching location…"
+        feedback.style.color = "#0284c7"
+      }
+
+      try {
+        const res = await fetch(`/api/external/pincode/${pin}`)
+        const data = await res.json()
+        if (data.ok && data.locality) {
+          const autoAddr = `${data.locality}, ${data.district}, ${data.state} - ${pin}`
+          locInput.value = autoAddr
+          if (feedback) {
+            feedback.textContent = `✓ Auto-filled: ${data.locality}`
+            feedback.style.color = "#16a34a"
+          }
+        } else {
+          if (feedback) {
+            feedback.textContent = "PIN not found"
+            feedback.style.color = "#dc2626"
+          }
+        }
+      } catch {
+        if (feedback) {
+          feedback.textContent = "Postal lookup unavailable"
+          feedback.style.color = "#dc2626"
+        }
+      }
+    })
+  }
+
   // Handle Instant Urgent Dispatch Confirmation
   if (confirmBtn) {
     confirmBtn.addEventListener("click", async () => {
@@ -186,10 +286,10 @@ function setupUrgentCaretakerFeature() {
         date: todayIso,
         time: activeUrgentStartTime || getUrgentStartTime(),
         address: confirmedAddr,
-        durationHours: 4,
+        durationHours: activeUrgentHours || 4,
         estimatedTotal: activeUrgentTotal || 1400,
         status: "Confirmed",
-        source: "Urgent 15-Min Dispatch",
+        source: `Urgent ${activeUrgentHours}h Dispatch`,
       }
 
       try {
@@ -216,7 +316,7 @@ function setupUrgentCaretakerFeature() {
         const displayId = data.booking ? data.booking.id : "CS-URG-CONFIRMED"
         if (successId) successId.textContent = displayId
         if (successCaretaker && activeUrgentCaretaker) successCaretaker.textContent = activeUrgentCaretaker.name
-        if (successTime) successTime.textContent = `Today at ${activeUrgentStartTime}`
+        if (successTime) successTime.textContent = `Today at ${activeUrgentStartTime} (${activeUrgentHours} hrs)`
         if (successTotal) successTotal.textContent = `₹${activeUrgentTotal.toLocaleString("en-IN")}`
         if (successMsg && activeUrgentCaretaker) {
           successMsg.textContent = `${activeUrgentCaretaker.name} is preparing to arrive at ${confirmedAddr} within 15 minutes.`
@@ -233,6 +333,23 @@ function setupUrgentCaretakerFeature() {
         confirmBtn.textContent = "🚨 Confirm & Dispatch Urgently (Starts in 15 Mins) ➔"
       }
     })
+  }
+}
+
+function updateUrgentCalculation() {
+  const rate = activeUrgentCaretaker ? (activeUrgentCaretaker.price || 350) : 350
+  activeUrgentTotal = rate * activeUrgentHours
+
+  const totalEl = document.getElementById("urgent-total-price")
+  const chargeHoursEl = document.getElementById("urgent-charge-hours")
+  const badgeEl = document.getElementById("urgent-hours-badge")
+  const rateCalcEl = document.getElementById("urgent-rate-calc")
+
+  if (totalEl) totalEl.textContent = `₹${activeUrgentTotal.toLocaleString("en-IN")}`
+  if (chargeHoursEl) chargeHoursEl.textContent = `${activeUrgentHours} Hours`
+  if (badgeEl) badgeEl.textContent = `${activeUrgentHours} Hours Selected`
+  if (rateCalcEl) {
+    rateCalcEl.textContent = `₹${rate}/hr × ${activeUrgentHours} hrs • Dispatch fee waived (₹0)`
   }
 }
 
@@ -267,9 +384,20 @@ async function openUrgentDispatchModal() {
     }
   }
 
-  // 2. Compute 15-minute start time & price
+  // 2. Compute 15-minute start time & reset duration to 4 hours
   activeUrgentStartTime = getUrgentStartTime()
-  activeUrgentTotal = (activeUrgentCaretaker.price || 350) * 4
+  activeUrgentHours = 4
+  activeUrgentTotal = (activeUrgentCaretaker.price || 350) * activeUrgentHours
+
+  const selectEl = document.getElementById("urgent-duration-select")
+  if (selectEl) selectEl.value = "4"
+  document.querySelectorAll(".urgent-duration-pill").forEach((p) => {
+    const isDefault = Number(p.dataset.hours) === 4
+    p.classList.toggle("active", isDefault)
+    p.style.background = isDefault ? "var(--primary)" : "#fff"
+    p.style.color = isDefault ? "#fff" : "var(--text-main)"
+    p.style.borderColor = isDefault ? "var(--primary)" : "var(--border-color)"
+  })
 
   // 3. Populate modal UI
   const imgEl = document.getElementById("urgent-caretaker-img")

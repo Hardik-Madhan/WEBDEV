@@ -276,31 +276,80 @@
             <strong id="urgent-time-display" style="color:#dc2626;">Starts in 15 mins</strong>
           </div>
           <div>
-            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Service Duration</span>
-            <strong id="urgent-duration-display" style="color:var(--text-main);">4 Hours (Priority Shift)</strong>
-          </div>
-          <div>
             <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Hourly Rate</span>
             <strong id="urgent-rate-display" style="color:var(--text-main);">₹350 / hr</strong>
           </div>
+          <div>
+            <span style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700; display:block;">Priority Dispatch Fee</span>
+            <strong style="color:#059669;">₹0 (Waived)</strong>
+          </div>
         </div>
 
-        <!-- Confirm Location Field -->
+        <!-- 1. Interactive Variable Duration Selector -->
+        <div style="margin-bottom:1.25rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:var(--radius-lg); padding:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; flex-wrap:wrap; gap:0.4rem;">
+            <label style="font-size:0.85rem; font-weight:700; color:var(--text-main); display:block;">
+              ⏱️ Select Service Duration <span style="color:#ef4444;">*</span>
+            </label>
+            <span id="urgent-hours-badge" style="font-size:0.75rem; font-weight:800; background:#dbeafe; color:#1e40af; padding:0.15rem 0.6rem; border-radius:9999px;">
+              4 Hours Selected
+            </span>
+          </div>
+
+          <!-- Quick Duration Selector Pills -->
+          <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:0.4rem; margin-bottom:0.6rem;">
+            <button type="button" class="btn btn-outline urgent-duration-pill" data-hours="2" style="padding:0.45rem 0.2rem; font-size:0.8rem; font-weight:700; text-align:center;">2 hrs</button>
+            <button type="button" class="btn btn-outline urgent-duration-pill active" data-hours="4" style="padding:0.45rem 0.2rem; font-size:0.8rem; font-weight:700; text-align:center; background:var(--primary); color:#fff; border-color:var(--primary);">4 hrs</button>
+            <button type="button" class="btn btn-outline urgent-duration-pill" data-hours="6" style="padding:0.45rem 0.2rem; font-size:0.8rem; font-weight:700; text-align:center;">6 hrs</button>
+            <button type="button" class="btn btn-outline urgent-duration-pill" data-hours="8" style="padding:0.45rem 0.2rem; font-size:0.8rem; font-weight:700; text-align:center;">8 hrs</button>
+            <button type="button" class="btn btn-outline urgent-duration-pill" data-hours="12" style="padding:0.45rem 0.2rem; font-size:0.8rem; font-weight:700; text-align:center;">12 hrs</button>
+          </div>
+
+          <!-- Custom Duration Select Dropdown -->
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; font-size:0.8rem; color:#64748b;">
+            <span>Custom shift length:</span>
+            <select id="urgent-duration-select" style="font-size:0.8rem; font-weight:600; padding:0.3rem 0.6rem; border-radius:0.4rem; border:1px solid #cbd5e1; background:#fff;">
+              <option value="2">2 Hours (Quick Assistance)</option>
+              <option value="4" selected>4 Hours (Standard Priority Shift)</option>
+              <option value="6">6 Hours (Extended Care)</option>
+              <option value="8">8 Hours (Full Day Shift)</option>
+              <option value="12">12 Hours (Half-Day / Night Support)</option>
+              <option value="24">24 Hours (Round-the-Clock Emergency)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 2. Variable Care Delivery Address -->
         <div style="margin-bottom:1.25rem;">
-          <label style="display:block; font-size:0.85rem; font-weight:700; color:var(--text-main); margin-bottom:0.35rem;">
-            📍 Confirm Care Delivery Address <span style="color:#ef4444;">*</span>
-          </label>
-          <input type="text" id="urgent-location-input" class="hero-input-field" style="width:100%; padding:0.6rem 0.75rem; font-size:0.85rem; border-radius:0.5rem; border:1px solid var(--border-color);" placeholder="Enter flat/house no, street, area, Bengaluru" required>
-          <p style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">
-            Pre-filled from your profile. Please confirm your exact door number and landmark.
-          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem; flex-wrap:wrap; gap:0.4rem;">
+            <label style="font-size:0.85rem; font-weight:700; color:var(--text-main);">
+              📍 Confirm Care Delivery Address <span style="color:#ef4444;">*</span>
+            </label>
+            <button type="button" id="urgent-locate-btn" style="background:none; border:none; color:var(--primary); font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:underline;">
+              Auto-fill Profile Address
+            </button>
+          </div>
+          <textarea id="urgent-location-input" rows="2" class="hero-input-field" style="width:100%; resize:none; padding:0.6rem 0.75rem; font-size:0.85rem; border-radius:0.5rem; border:1px solid var(--border-color);" placeholder="Enter house/flat number, apartment name, street, locality, Bengaluru (min 5 chars)" required></textarea>
+
+          <!-- Postal Code Helper (India Post API) -->
+          <div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.4rem; flex-wrap:wrap;">
+            <input type="text" id="urgent-pincode-input" maxlength="6" placeholder="PIN (e.g. 560034)" style="width:130px; padding:0.3rem 0.5rem; font-size:0.78rem; border-radius:0.4rem; border:1px solid var(--border-color);">
+            <button type="button" id="urgent-pincode-btn" class="btn btn-outline" style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700;">
+              Lookup PIN
+            </button>
+            <span id="urgent-pincode-feedback" style="font-size:0.72rem; font-weight:600;"></span>
+          </div>
         </div>
 
-        <!-- Total Charge Breakdown Card -->
+        <!-- Total Charge Breakdown Card (Dynamically updates with Duration) -->
         <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:var(--radius-lg); padding:0.85rem 1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <span style="font-size:0.72rem; font-weight:700; color:#1e40af; text-transform:uppercase; display:block;">Total Charge (4 Hours)</span>
-            <span style="font-size:0.78rem; color:#3b82f6;">Includes priority dispatch fee (₹0 waived)</span>
+            <span id="urgent-charge-label" style="font-size:0.75rem; font-weight:700; color:#1e40af; text-transform:uppercase; display:block;">
+              Total Charge (<span id="urgent-charge-hours">4 Hours</span>)
+            </span>
+            <span id="urgent-rate-calc" style="font-size:0.78rem; color:#3b82f6;">
+              ₹350/hr &times; 4 hrs &bull; Dispatch fee waived (₹0)
+            </span>
           </div>
           <div style="text-align:right;">
             <span id="urgent-total-price" style="font-size:1.6rem; font-weight:900; color:#1d4ed8;">₹1,400</span>
