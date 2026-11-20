@@ -207,54 +207,6 @@ function setupUrgentCaretakerFeature() {
     })
   }
 
-  // Handle India Post PIN Code Auto-Lookup
-  const pinBtn = document.getElementById("urgent-pincode-btn")
-  if (pinBtn) {
-    pinBtn.addEventListener("click", async () => {
-      const pinInput = document.getElementById("urgent-pincode-input")
-      const feedback = document.getElementById("urgent-pincode-feedback")
-      const locInput = document.getElementById("urgent-location-input")
-      if (!pinInput || !locInput) return
-
-      const pin = pinInput.value.trim()
-      if (!/^\d{6}$/.test(pin)) {
-        if (feedback) {
-          feedback.textContent = "Enter valid 6-digit PIN"
-          feedback.style.color = "#dc2626"
-        }
-        return
-      }
-
-      if (feedback) {
-        feedback.textContent = "Fetching location…"
-        feedback.style.color = "#0284c7"
-      }
-
-      try {
-        const res = await fetch(`/api/external/pincode/${pin}`)
-        const data = await res.json()
-        if (data.ok && data.locality) {
-          const autoAddr = `${data.locality}, ${data.district}, ${data.state} - ${pin}`
-          locInput.value = autoAddr
-          if (feedback) {
-            feedback.textContent = `✓ Auto-filled: ${data.locality}`
-            feedback.style.color = "#16a34a"
-          }
-        } else {
-          if (feedback) {
-            feedback.textContent = "PIN not found"
-            feedback.style.color = "#dc2626"
-          }
-        }
-      } catch {
-        if (feedback) {
-          feedback.textContent = "Postal lookup unavailable"
-          feedback.style.color = "#dc2626"
-        }
-      }
-    })
-  }
-
   // Handle Instant Urgent Dispatch Confirmation
   if (confirmBtn) {
     confirmBtn.addEventListener("click", async () => {
