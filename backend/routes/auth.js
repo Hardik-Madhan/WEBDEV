@@ -14,6 +14,7 @@ const { readJson, writeJson, getCurrentUser } = require("../db")
 // POST /api/account: Handles Login, Sign Up, and Logout
 router.post("/", (req, res) => {
   const action = req.body.action
+  console.log(`[AUTH DEBUG] Action: ${action} | Received from Frontend at ${new Date().toLocaleTimeString()}`)
 
   // A. Logout
   if (action === "logout") {
@@ -23,6 +24,7 @@ router.post("/", (req, res) => {
 
   // B. Login
   if (action === "login") {
+    debugger // Automatic pause for Backend Debugger
     const email = String(req.body.email || "").trim().toLowerCase()
     const password = String(req.body.password || "")
 
@@ -31,11 +33,11 @@ router.post("/", (req, res) => {
 
     if (!user) {
       return res.status(404).json({ error: "No account exists with this email. Please sign up first." })
-    }
+    }// 404 = Not Found
 
     if (user.password !== password) {
       return res.status(401).json({ error: "Incorrect password. Please verify and try again." })
-    }
+    }// 401 = Unauthorized
 
     const token = crypto.randomBytes(32).toString("hex")
     const sessions = readJson("sessions.json")
