@@ -24,7 +24,6 @@ router.post("/", (req, res) => {
 
   // B. Login
   if (action === "login") {
-    debugger // Automatic pause for Backend Debugger
     const email = String(req.body.email || "").trim().toLowerCase()
     const password = String(req.body.password || "")
 

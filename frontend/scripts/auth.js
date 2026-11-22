@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Logging in…"
 
       try {
-        debugger // Automatic pause for Frontend Debugger
         const response = await fetch("/api/account", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -93,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Creating account in users.json…"
 
       try {
-        debugger // Automatic pause for Frontend Debugger
         const response = await fetch("/api/account", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
