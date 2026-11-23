@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "CareSure - Caregiver Booking Platform (Frontend + Backend)",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "debug": "node --inspect backend/server.js"
   },
   "keywords": [
     "html",
